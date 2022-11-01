@@ -154,12 +154,31 @@ message sessionId{
 
 // MIRROR and SNOOP require an actionNextHop
 // DROP and FORWARD do not have an actionNextHop
-// The IPV4 nextHop definition maps to the V4 struct returned by inet_pton whcih is a uint32_t.
+// The IPV4 nextHop definition maps to the V4 struct returned by inet_pton which is a uint32_t.
 // The IPV6 nextHop definition maps to the V6 struct returned by inet_ptoN which is a uint8_t s6_addr[16]
 message actionParameters{
      ACTION_TYPE  actionType = 1;
      uint32 actionNextHop = 2;
      bytes actionNextHopV6 = 3;
+
+     //
+     // For GTP-encapsulated traffic, these actions apply to the outermost packet header.
+     //
+     
+     // L2 re-writes
+     bytes rewrite_src_mac = 21;
+     bytes rewrite_dst_mac = 22;
+     
+     // L3 re-writes
+     uint32 rewrite_src_ipv4 = 31;
+     uint32 rewrite_dst_ipv4 = 32;
+     bytes rewrite_src_ipv6 = 33;
+     bytes rewrite_dst_ipv6 = 34;
+     
+     // L4 actions
+     uint16 rewrite_src_port = 41;
+     uint16 rewrite_dst_port = 42;
+     bool decrement_tcp_ttl = 43;
 }
 
 // sessionId is returned by server side upon successful addSession
@@ -169,6 +188,11 @@ message sessionRequest{
   uint64  sessionId = 1 ;
   int32  inLif = 2;
   int32  outLif = 3;
+  bool is_gtp_encapped = 14;
+  
+  //
+  // For GTP-encapsulated traffic, these match patterns apply to the inner-layer packet header.
+  //
   IP_VERSION ipVersion = 4;
   uint32 sourceIp = 5;
   bytes sourceIpV6 =6;
@@ -177,6 +201,7 @@ message sessionRequest{
   bytes destinationIpV6 =9;
   uint32 destinationPort = 10;
   PROTOCOL_ID protocolId = 11;
+
   actionParameters action = 12;
   uint32 cacheTimeout = 13;
 }
