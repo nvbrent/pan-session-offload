@@ -152,6 +152,22 @@ message sessionId{
   uint64 sessionId = 1;
 }
 
+// Packet header overwrite values
+message MACRewrite{
+  bytes srcMac = 1;
+  bytes dstMac = 2;
+}
+
+// Packet header overwrite values
+message NAT{
+  uint32 srcIPv4 = 1;
+  uint32 dstIPv4 = 2;
+  bytes srcIPv6 = 3;
+  bytes dstIPv6 = 4;
+  uint16 srcPort = 1;
+  uint16 dstPort = 2;
+}
+
 // MIRROR and SNOOP require an actionNextHop
 // DROP and FORWARD do not have an actionNextHop
 // The IPV4 nextHop definition maps to the V4 struct returned by inet_pton which is a uint32_t.
@@ -161,24 +177,14 @@ message actionParameters{
      uint32 actionNextHop = 2;
      bytes actionNextHopV6 = 3;
 
-     //
-     // For GTP-encapsulated traffic, these actions apply to the outermost packet header.
-     //
-     
-     // L2 re-writes
-     bytes rewrite_src_mac = 21;
-     bytes rewrite_dst_mac = 22;
-     
-     // L3 re-writes
-     uint32 rewrite_src_ipv4 = 31;
-     uint32 rewrite_dst_ipv4 = 32;
-     bytes rewrite_src_ipv6 = 33;
-     bytes rewrite_dst_ipv6 = 34;
-     
-     // L4 actions
-     uint16 rewrite_src_port = 41;
-     uint16 rewrite_dst_port = 42;
-     bool decrement_tcp_ttl = 43;
+     // Overwrite src/dst MAC for L3 support.
+     // Presense of 'mac' implies a TTL decrement for TCP flows.
+     // For GTP-encapsulated traffic, applies to outermost packet header.
+     MACRewrite mac = 11;
+
+     // Overwrite src/dst L3/L4 fields for NAT support.
+     // For GTP-encapsulated traffic, applies to outermost packet header.
+     NAT nat = 13;
 }
 
 // sessionId is returned by server side upon successful addSession
@@ -188,7 +194,7 @@ message sessionRequest{
   uint64  sessionId = 1 ;
   int32  inLif = 2;
   int32  outLif = 3;
-  bool is_gtp_encapped = 14;
+  bool isGTPEncapped = 14;
   
   //
   // For GTP-encapsulated traffic, these match patterns apply to the inner-layer packet header.
