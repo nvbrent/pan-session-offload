@@ -164,8 +164,8 @@ message NAT{
   uint32 dstIPv4 = 2;
   bytes srcIPv6 = 3;
   bytes dstIPv6 = 4;
-  uint16 srcPort = 1;
-  uint16 dstPort = 2;
+  uint16 srcPort = 5;
+  uint16 dstPort = 6;
 }
 
 // MIRROR and SNOOP require an actionNextHop
@@ -195,7 +195,13 @@ message sessionRequest{
   int32  inLif = 2;
   int32  outLif = 3;
   bool isGTPEncapped = 14;
-  
+
+  // VLAN matching applies only to outer-most packet header.
+  // Traffic received on 'inLif' matching 'inVlan' will have its tag re-written
+  // with 'outVlan' on egress to 'outLif', and vice versa, if both are specified.
+  uint16 inVlan = 15;
+  uint16 outVlan = 16;
+
   //
   // For GTP-encapsulated traffic, these match patterns apply to the inner-layer packet header.
   //
