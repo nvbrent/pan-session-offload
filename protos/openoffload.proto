@@ -117,6 +117,11 @@ enum ACTION_TYPE{
    _SNOOP = 3;
 }
 
+enum TUNNEL_TYPE{
+  _NONE = 0;
+  _GTPU = 1;
+}
+
 //
 // The session table was combined with the statistices service
 // in v1alpha4 to simplfy the code.
@@ -159,13 +164,12 @@ message MACRewrite{
 }
 
 // Packet header overwrite values
+// These fields may apply to either the source or destionation fields
+// of the packet header, depending on the context.
 message NAT{
-  uint32 srcIPv4 = 1;
-  uint32 dstIPv4 = 2;
-  bytes srcIPv6 = 3;
-  bytes dstIPv6 = 4;
-  uint16 srcPort = 5;
-  uint16 dstPort = 6;
+  uint32 ipv4 = 1;
+  bytes ipv6 = 2;
+  uint16 port = 3;
 }
 
 // MIRROR and SNOOP require an actionNextHop
@@ -177,14 +181,26 @@ message actionParameters{
      uint32 actionNextHop = 2;
      bytes actionNextHopV6 = 3;
 
-     // Overwrite src/dst MAC for L3 support.
-     // Presense of 'mac' implies a TTL decrement for TCP flows.
-     // For GTP-encapsulated traffic, applies to outermost packet header.
-     MACRewrite mac = 11;
+     // L3 Support: overwrite src/dst MAC for each link interface
+     // - The presense of MAC rewrite fields implies a TTL decrement for TCP flows.
+     // - For encapsulated traffic, the rewrite action applies to outermost packet header.
+     MACRewrite macRewrite_inLif = 11;
+     MACRewrite macRewrite_outLif = 12;
 
-     // Overwrite src/dst L3/L4 fields for NAT support.
-     // For GTP-encapsulated traffic, applies to outermost packet header.
-     NAT nat = 13;
+     // NAT Support: overwrite src/dst L3/L4 fields
+     // - For outLif, source fields are overwritten
+     // - For inLif, destination fields are overwritten
+     // - For encapsulated traffic, applies to outermost packet header.
+     NAT srcNat_outLif = 13;
+     NAT dstNat_inLif = 14;
+
+     // VLAN Mapping: re-write VLAN tags, if present
+     // - If non-zero, overwrite VLAN tag as specified for each link interface
+     // - The sessionRequest vlan fields must also be present (this command does
+     //   not create a VLAN tag if one is not already present).
+     // - For encapsulated traffic, applies to outermost packet header.
+     uint16 vlan_outLif = 15;
+     uint16 vlan_inLif = 16;
 }
 
 // sessionId is returned by server side upon successful addSession
@@ -194,16 +210,17 @@ message sessionRequest{
   uint64  sessionId = 1 ;
   int32  inLif = 2;
   int32  outLif = 3;
-  bool isGTPEncapped = 14;
+  TUNNEL_TYPE encapType = 14;
 
   // VLAN matching applies only to outer-most packet header.
-  // Traffic received on 'inLif' matching 'inVlan' will have its tag re-written
-  // with 'outVlan' on egress to 'outLif', and vice versa, if both are specified.
-  uint16 inVlan = 15;
-  uint16 outVlan = 16;
+  // Used in conjunction with actionParameters.vlan fields to
+  // implement VLAN re-write actions.
+  // VLAN fields should be either all zero (untagged) or all non-zero.
+  uint16 vlan_inLif = 15;
+  uint16 vlan_outLif = 16;
 
   //
-  // For GTP-encapsulated traffic, these match patterns apply to the inner-layer packet header.
+  // For encapsulated traffic, these match patterns apply to the inner-layer packet header.
   //
   IP_VERSION ipVersion = 4;
   uint32 sourceIp = 5;
