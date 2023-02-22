@@ -31,6 +31,91 @@ extern "C" {
 #include "opof_util.h"
 #include "opof_grpc.h"
 
+static void convertMacRewrite2cpp(
+  const struct macRewrite_t * rewrite_c,
+  MACRewrite * rewrite_pb)
+{
+  rewrite_pb->mutable_srcmac()->append((char*)rewrite_c->srcMac, 6);
+  rewrite_pb->mutable_dstmac()->append((char*)rewrite_c->dstMac, 6);
+}
+
+static void convertMacRewrite2c(
+  const MACRewrite * rewrite_pb,
+  struct macRewrite_t * rewrite_c)
+{
+  if (rewrite_pb->srcmac().length() >= 6 && rewrite_pb->dstmac().length() >= 6) {
+    memcpy(rewrite_c->srcMac, &rewrite_pb->srcmac()[0], 6);
+    memcpy(rewrite_c->dstMac, &rewrite_pb->dstmac()[0], 6);
+  }
+}
+
+static void convertNat2cpp(
+  const struct nat_t * nat_c,
+  NAT * nat_pb)
+{
+  nat_pb->set_ipv4(nat_c->ipv4.s_addr);
+  nat_pb->mutable_ipv6()->append((char*)nat_c->ipv6.s6_addr, 16);
+  nat_pb->set_port(nat_c->port);
+}
+
+static void convertNat2c(
+  const NAT * nat_pb,
+  struct nat_t * nat_c)
+{
+  nat_c->ipv4.s_addr = nat_pb->ipv4();
+  if (nat_pb->ipv6().length() >= 16) {
+    memcpy(nat_c->ipv6.s6_addr, &nat_pb->ipv6()[0], 16);
+  }
+  nat_c->port = nat_pb->port();
+}
+
+static void convertActionParams2cpp(
+  const struct actionParameters_t * actionParams_c, 
+  openoffload::v1::actionParameters * actionParams_pb)
+{
+    actionParams_pb->set_actiontype((ACTION_TYPE)actionParams_c->actionType);
+    
+    // obsolete: actionNextHop, actionNextHopV6
+
+    if (actionParams_c->macRewriteEnable) {
+      convertMacRewrite2cpp(&actionParams_c->macRewrite_inLif,  actionParams_pb->mutable_macrewrite_inlif());
+      convertMacRewrite2cpp(&actionParams_c->macRewrite_outLif, actionParams_pb->mutable_macrewrite_outlif());
+    }
+    if (actionParams_c->natEnable) {
+      convertNat2cpp(&actionParams_c->srcNat_outLif, actionParams_pb->mutable_srcnat_outlif());
+      convertNat2cpp(&actionParams_c->dstNat_inLif,  actionParams_pb->mutable_dstnat_inlif());
+    }
+    actionParams_pb->set_vlan_inlif(actionParams_c->vlan_inLif);
+    actionParams_pb->set_vlan_outlif(actionParams_c->vlan_outLif);
+}
+
+static void convertActionParams2c(
+  const openoffload::v1::actionParameters * actionParams_pb,
+  struct actionParameters_t * actionParams_c)
+{
+    actionParams_c->actionType = (ACTION_VALUE_T)actionParams_pb->actiontype();
+
+    // obsolete: actionNextHop, actionNextHopV6
+
+    if (actionParams_pb->has_macrewrite_inlif() &&
+        actionParams_pb->has_macrewrite_outlif())
+    {
+      actionParams_c->macRewriteEnable = true;
+      convertMacRewrite2c(&actionParams_pb->macrewrite_inlif(),  &actionParams_c->macRewrite_inLif);
+      convertMacRewrite2c(&actionParams_pb->macrewrite_outlif(), &actionParams_c->macRewrite_outLif);
+    }
+
+    if (actionParams_pb->has_srcnat_outlif() &&
+        actionParams_pb->has_dstnat_inlif())
+    {
+      actionParams_c->natEnable = true;
+      convertNat2c(&actionParams_pb->dstnat_inlif(),  &actionParams_c->dstNat_inLif);
+      convertNat2c(&actionParams_pb->srcnat_outlif(), &actionParams_c->srcNat_outLif);
+    }
+    actionParams_c->vlan_inLif  = actionParams_pb->vlan_inlif();
+    actionParams_c->vlan_outLif = actionParams_pb->vlan_outlif();
+}
+
 /** \ingroup utilities
 *
 * \brief Covert a C SessionRequest_t to a C++ sessionRequest Class instance
@@ -42,11 +127,13 @@ extern "C" {
 * \return void
 */
 void convertSessionRequest2cpp(sessionRequest_t *request_c, sessionRequest *request){
-    actionParameters action;
     std::string s;
     request->set_sessionid(request_c->sessId);
     request->set_inlif(request_c->inlif);
     request->set_outlif(request_c->outlif);
+    request->set_encaptype((TUNNEL_TYPE)request_c->encapType);
+    request->set_vlan_inlif(request_c->vlan_inLif);
+    request->set_vlan_outlif(request_c->vlan_outLif);
     request->set_ipversion((IP_VERSION)request_c->ipver);
     request->set_sourceport((unsigned int)request_c->srcPort);
     if (request_c->ipver == _IPV6){
@@ -63,16 +150,8 @@ void convertSessionRequest2cpp(sessionRequest_t *request_c, sessionRequest *requ
     } 
     request->set_destinationport((unsigned int)request_c->dstPort);
     request->set_protocolid((PROTOCOL_ID)request_c->proto);
-    action.set_actiontype((ACTION_TYPE)request_c->actType);
-    if (request_c->ipver == _IPV6){
-      s.assign(request_c->nextHopV6.s6_addr, request_c->nextHopV6.s6_addr+ 16);
-      action.set_actionnexthopv6(s);
-    } else {
-      action.set_actionnexthop(request_c->nextHop.s_addr);
-    }
-    request->mutable_action()->CopyFrom(action);
+    convertActionParams2cpp(&request_c->actionParams, request->mutable_action());
     request->set_cachetimeout(request_c->cacheTimeout);
-
 }
 /** \ingroup utilities
 *
@@ -130,12 +209,15 @@ void convertSessionResponse2cpp(sessionResponse *responsecpp, sessionResponse_t 
   responsecpp->set_inbytes(responsec->inBytes);
   responsecpp->set_outbytes(responsec->outBytes);
 }
-void convertSessionRequest2c(sessionRequest request, sessionRequest_t *request_c){
+void convertSessionRequest2c(sessionRequest &request, sessionRequest_t *request_c){
     actionParameters action;
     std::vector<uint8_t> char_array(16, 0);
     request_c->sessId = request.sessionid();
     request_c->inlif = request.inlif();
     request_c->outlif = request.outlif();
+    request_c->encapType = (TUNNEL_TYPE_T)request.encaptype();
+    request_c->vlan_inLif = request.vlan_inlif();
+    request_c->vlan_outLif = request.vlan_outlif();
     request_c->ipver = (IP_VERSION_T)request.ipversion();
     if (request_c->ipver == _IPV6){
       char_array.assign(request.sourceipv6().begin(), request.sourceipv6().end());
@@ -152,13 +234,6 @@ void convertSessionRequest2c(sessionRequest request, sessionRequest_t *request_c
     request_c->srcPort = (unsigned short)request.sourceport();
     request_c->dstPort = (unsigned short)request.destinationport();
     request_c->proto = (PROTOCOL_ID_T)request.protocolid();
-    action = request.action();
-    request_c->actType= (ACTION_VALUE_T)action.actiontype();
+    convertActionParams2c(&request.action(), &request_c->actionParams);
     request_c->cacheTimeout = request.cachetimeout();
-     if (request_c->ipver == _IPV6){
-      char_array.assign(action.actionnexthopv6().begin(), action.actionnexthopv6().end());
-      memcpy(request_c->nextHopV6.s6_addr,&char_array[0],16);
-    } else {
-      request_c->nextHop.s_addr = action.actionnexthop();
-    }
  }

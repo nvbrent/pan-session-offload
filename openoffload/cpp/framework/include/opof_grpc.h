@@ -33,7 +33,6 @@ using namespace std;
 #include <grpcpp/server_builder.h>
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
-#include <grpcpp/channel_impl.h>
 
 #include "openoffload.grpc.pb.h"
 #include "openoffload.pb.h"
@@ -60,11 +59,14 @@ using openoffload::v1::sessionResponseError;
 using openoffload::v1::sessionId;
 using openoffload::v1::IP_VERSION;
 using openoffload::v1::PROTOCOL_ID;
+using openoffload::v1::TUNNEL_TYPE;
 using openoffload::v1::ACTION_TYPE;
 using openoffload::v1::REQUEST_STATUS;
 using openoffload::v1::ADD_SESSION_STATUS;
 using openoffload::v1::SESSION_STATE;
 using openoffload::v1::SESSION_CLOSE_CODE;
 using openoffload::v1::actionParameters;
+using openoffload::v1::MACRewrite;
+using openoffload::v1::NAT;
 
 #endif // _OPOF_GRPC_H
