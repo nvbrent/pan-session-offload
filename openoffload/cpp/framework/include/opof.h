@@ -26,9 +26,9 @@
 #include <netinet/in.h>
 
 #ifdef  __GNUC__
-#define DEPRECATED(decl) decl __attribute__((deprecated))
+#define OPOF_DEPRECATED(decl) decl __attribute__((deprecated))
 #else
-#define DEPRECATED(decl) decl
+#define OPOF_DEPRECATED(decl) decl
 #endif
 
 typedef enum  { 
@@ -373,9 +373,9 @@ typedef struct sessionRequestTuple {
     struct actionParameters_t actionParams;
     unsigned int cacheTimeout;
     
-    DEPRECATED(ACTION_VALUE_T actType);
-    DEPRECATED(struct in_addr  nextHop);
-    DEPRECATED(struct in6_addr nextHopV6);
+    OPOF_DEPRECATED(ACTION_VALUE_T actType);
+    OPOF_DEPRECATED(struct in_addr  nextHop);
+    OPOF_DEPRECATED(struct in6_addr nextHopV6);
 } sessionRequest_t;
 
 

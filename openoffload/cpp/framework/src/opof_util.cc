@@ -35,8 +35,8 @@ static void convertMacRewrite2cpp(
   const struct macRewrite_t * rewrite_c,
   MACRewrite * rewrite_pb)
 {
-  rewrite_pb->mutable_srcmac()->append((char*)rewrite_c->srcMac, 6);
-  rewrite_pb->mutable_dstmac()->append((char*)rewrite_c->dstMac, 6);
+  rewrite_pb->mutable_srcmac()->assign(&rewrite_c->srcMac[0], &rewrite_c->srcMac[6]);
+  rewrite_pb->mutable_dstmac()->assign(&rewrite_c->dstMac[0], &rewrite_c->dstMac[6]);
 }
 
 static void convertMacRewrite2c(
@@ -54,7 +54,7 @@ static void convertNat2cpp(
   NAT * nat_pb)
 {
   nat_pb->set_ipv4(nat_c->ipv4.s_addr);
-  nat_pb->mutable_ipv6()->append((char*)nat_c->ipv6.s6_addr, 16);
+  nat_pb->mutable_ipv6()->assign(&nat_c->ipv6.s6_addr[0], &nat_c->ipv6.s6_addr[16]);
   nat_pb->set_port(nat_c->port);
 }
 
