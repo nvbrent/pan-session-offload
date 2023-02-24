@@ -23,11 +23,18 @@
 #include "opof.h"
 #include "opof_error.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int opof_add_session_server(sessionRequest_t *parameters, addSessionResponse_t *response);
 int opof_get_session_server(unsigned long sessionId, sessionResponse_t *response);
 int opof_del_session_server(unsigned long sessionId, sessionResponse_t *response);
 int opof_get_closed_sessions_server(statisticsRequestArgs_t *request, sessionResponse_t responses[]);
 int opof_get_all_sessions_server(int pageSize, uint64_t *startSession,int pageCount, sessionResponse_t **responses);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif
