@@ -62,29 +62,27 @@ extern "C" {
 */
 int SessionTableClient::addSessionClient(int size, sessionRequest_t **s, addSessionResponse_t *resp){
 
-  sessionRequest_t *request_c;
-  sessionRequest request;
-  addSessionResponse response;
   ClientContext context;
-  Status status;
   std::chrono::system_clock::time_point deadline = std::chrono::system_clock::now() + std::chrono::milliseconds(opof_get_deadline());
   context.set_deadline(deadline);
   #ifdef DEBUG
   std::cout << "Deadline set for add session: " << opof_get_deadline() << " milli seconds" << endl;
   #endif
+  addSessionResponse response;
   std::unique_ptr<ClientWriter <sessionRequest> > writer(
           stub_->addSession(&context, &response));
 
   for (int i=0; i< size; i++){
-    request_c = s[i];
+    sessionRequest_t *request_c = s[i];
   #ifdef DEBUG
     display_session_request(request_c, "addSessionClient");
   #endif
+    sessionRequest request;
     convertSessionRequest2cpp(request_c, &request);
     writer->Write(request);
   }
   writer->WritesDone();
-  status = writer->Finish();
+  Status status = writer->Finish();
   convertAddSessionResponse2c(resp,&response);
   //std::cout << "Status code: " <<  static_cast<int>(status.error_code()) << endl;
   return static_cast<int>(status.error_code());

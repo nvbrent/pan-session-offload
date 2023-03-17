@@ -80,10 +80,17 @@ static void convertActionParams2cpp(
     if (actionParams_c->macRewriteEnable) {
       convertMacRewrite2cpp(&actionParams_c->macRewrite_inLif,  actionParams_pb->mutable_macrewrite_inlif());
       convertMacRewrite2cpp(&actionParams_c->macRewrite_outLif, actionParams_pb->mutable_macrewrite_outlif());
+    } else {
+      actionParams_pb->clear_macrewrite_inlif();
+      actionParams_pb->clear_macrewrite_outlif();
     }
+
     if (actionParams_c->natEnable) {
       convertNat2cpp(&actionParams_c->srcNat_outLif, actionParams_pb->mutable_srcnat_outlif());
       convertNat2cpp(&actionParams_c->dstNat_inLif,  actionParams_pb->mutable_dstnat_inlif());
+    } else {
+      actionParams_pb->clear_srcnat_outlif();
+      actionParams_pb->clear_dstnat_inlif();
     }
     actionParams_pb->set_vlan_inlif(actionParams_c->vlan_inLif);
     actionParams_pb->set_vlan_outlif(actionParams_c->vlan_outLif);
