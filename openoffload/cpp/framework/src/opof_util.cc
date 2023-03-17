@@ -97,21 +97,27 @@ static void convertActionParams2c(
 
     // obsolete: actionNextHop, actionNextHopV6
 
-    if (actionParams_pb->has_macrewrite_inlif() &&
-        actionParams_pb->has_macrewrite_outlif())
+    actionParams_c->macRewriteEnable = 
+        actionParams_pb->has_macrewrite_inlif() &&
+        actionParams_pb->has_macrewrite_outlif();
+    
+    if (actionParams_c->macRewriteEnable)
     {
-      actionParams_c->macRewriteEnable = true;
       convertMacRewrite2c(&actionParams_pb->macrewrite_inlif(),  &actionParams_c->macRewrite_inLif);
       convertMacRewrite2c(&actionParams_pb->macrewrite_outlif(), &actionParams_c->macRewrite_outLif);
     }
 
-    if (actionParams_pb->has_srcnat_outlif() &&
-        actionParams_pb->has_dstnat_inlif())
+    actionParams_c->natEnable =
+        actionParams_pb->has_srcnat_outlif() &&
+        actionParams_pb->has_dstnat_inlif();
+    
+    if (actionParams_c->natEnable)
     {
       actionParams_c->natEnable = true;
       convertNat2c(&actionParams_pb->dstnat_inlif(),  &actionParams_c->dstNat_inLif);
       convertNat2c(&actionParams_pb->srcnat_outlif(), &actionParams_c->srcNat_outLif);
     }
+    
     actionParams_c->vlan_inLif  = actionParams_pb->vlan_inlif();
     actionParams_c->vlan_outLif = actionParams_pb->vlan_outlif();
 }
