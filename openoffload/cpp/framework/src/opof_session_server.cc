@@ -41,12 +41,8 @@ extern "C" {
 * \param response
 */
 Status SessionTableImpl::addSession(ServerContext* context, ServerReader<sessionRequest>* reader, addSessionResponse* response) {
-  int status;
   //int index=0;
   //ADD_SESSION_STATUS reqStatus = ADD_SESSION_STATUS::_SESSION_ACCEPTED;
-  addSessionResponse_t addResponse_c;
-  sessionResponseError *errorMessage;
-  sessionRequest_t request_c;
   sessionRequest request;
   response->clear_responseerror();
   //std::cout << "response size: " << response->responseerror_size() << std::endl;
@@ -57,13 +53,15 @@ Status SessionTableImpl::addSession(ServerContext* context, ServerReader<session
   sleep(1);
 #endif
   while(reader->Read(&request)){
+    sessionRequest_t request_c = {};
     convertSessionRequest2c(request, &request_c);
     if (context->IsCancelled()) {
       return Status(StatusCode::CANCELLED, "Deadline exceeded or Client cancelled, abandoning.");
     }
-    status = opof_add_session_server(&request_c, &addResponse_c);
+    addSessionResponse_t addResponse_c = {};
+    int status = opof_add_session_server(&request_c, &addResponse_c);
     if (status != _OK){
-      errorMessage = response->add_responseerror();
+      sessionResponseError *errorMessage = response->add_responseerror();
       errorMessage->set_sessionid(request.sessionid());
       errorMessage->set_errorstatus(status);
     }
