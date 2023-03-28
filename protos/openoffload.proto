@@ -169,7 +169,7 @@ message MACRewrite{
 message NAT{
   uint32 ipv4 = 1;
   bytes ipv6 = 2;
-  uint16 port = 3;
+  uint32 port = 3;
 }
 
 // MIRROR and SNOOP require an actionNextHop
@@ -199,8 +199,8 @@ message actionParameters{
      // - The sessionRequest vlan fields must also be present (this command does
      //   not create a VLAN tag if one is not already present).
      // - For encapsulated traffic, applies to outermost packet header.
-     uint16 vlan_outLif = 15;
-     uint16 vlan_inLif = 16;
+     uint32 vlan_outLif = 15;
+     uint32 vlan_inLif = 16;
 }
 
 // sessionId is returned by server side upon successful addSession
@@ -216,8 +216,8 @@ message sessionRequest{
   // Used in conjunction with actionParameters.vlan fields to
   // implement VLAN re-write actions.
   // VLAN fields should be either all zero (untagged) or all non-zero.
-  uint16 vlan_inLif = 15;
-  uint16 vlan_outLif = 16;
+  uint32 vlan_inLif = 15;
+  uint32 vlan_outLif = 16;
 
   //
   // For encapsulated traffic, these match patterns apply to the inner-layer packet header.

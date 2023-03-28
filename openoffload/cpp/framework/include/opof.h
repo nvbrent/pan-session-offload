@@ -24,6 +24,13 @@
 
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <stdbool.h>
+
+#ifdef  __GNUC__
+#define OPOF_DEPRECATED(decl) decl __attribute__((deprecated))
+#else
+#define OPOF_DEPRECATED(decl) decl
+#endif
 
 typedef enum  { 
   _HOPOPT = 0,
@@ -35,6 +42,11 @@ typedef enum  {
    _IPV4 = 0,
    _IPV6 = 1,
 } IP_VERSION_T;
+
+typedef enum {
+   _NONE = 0,
+   _GTPU = 1,
+} TUNNEL_TYPE_T;
 
 typedef enum {
    _DROP = 0,
@@ -204,6 +216,58 @@ typedef enum {
    _REJECTED_INTERNAL_ERROR =6,
 } REQUEST_STATUS_T;
 
+/** 
+ * Packet header overwrite values 
+ */
+typedef struct macRewrite_t {
+  uint8_t srcMac[6];
+  uint8_t dstMac[6];
+} macRewrite_t;
+
+/**
+ * Packet header overwrite values
+ * These fields may apply to either the source or destionation fields
+ * of the packet header, depending on the context.
+ */
+typedef struct nat_t {
+  struct in_addr ipv4;
+  struct in6_addr ipv6;
+  uint16_t port;
+} nat_t;
+
+typedef struct actionParameters_t {
+  ACTION_VALUE_T actionType;
+
+  /**
+   * L3 Support: overwrite src/dst MAC for each link interface
+   * - The presense of MAC rewrite fields implies a TTL decrement for TCP flows.
+   * - For encapsulated traffic, the rewrite action applies to outermost packet header.
+   */
+  bool macRewriteEnable;
+  struct macRewrite_t macRewrite_inLif;
+  struct macRewrite_t macRewrite_outLif;
+
+  /**
+   * NAT Support: overwrite src/dst L3/L4 fields
+   * - For outLif, source fields are overwritten
+   * - For inLif, destination fields are overwritten
+   * - For encapsulated traffic, applies to outermost packet header.
+   */
+  bool natEnable;
+  struct nat_t srcNat_outLif;
+  struct nat_t dstNat_inLif;
+
+  /**
+   * VLAN Mapping: re-write VLAN tags, if present
+   * - If non-zero, overwrite VLAN tag as specified for each link interface
+   * - The sessionRequest vlan fields must also be present (this command does
+   *   not create a VLAN tag if one is not already present).
+   * - For encapsulated traffic, applies to outermost packet header.
+   */
+  uint16_t vlan_outLif;
+  uint16_t vlan_inLif;
+} actionParameters_t;
+
 /** @struct streamArgs_t
    *  This is a struct that handles the streaming arguments
    *
@@ -283,6 +347,21 @@ typedef struct sessionRequestTuple {
     unsigned long sessId;
     unsigned int inlif;
     unsigned int outlif;
+
+    TUNNEL_TYPE_T encapType;
+
+    /*
+     * VLAN matching applies only to outer-most packet header.
+     * Used in conjunction with actionParameters.vlan fields to
+     * implement VLAN re-write actions.
+     * VLAN fields should be either all zero (untagged) or all non-zero.
+     */
+    uint16_t vlan_outLif;
+    uint16_t vlan_inLif;
+
+    /*
+     * For encapsulated traffic, these match patterns apply to the inner-layer packet header.
+     */
     struct in_addr srcIP;
     struct in6_addr srcIPV6;
     struct in_addr dstIP;
@@ -291,10 +370,13 @@ typedef struct sessionRequestTuple {
     unsigned short dstPort;
     PROTOCOL_ID_T proto;
     IP_VERSION_T ipver;
-    ACTION_VALUE_T actType;
-    struct in_addr  nextHop;
-    struct in6_addr nextHopV6;
+
+    struct actionParameters_t actionParams;
     unsigned int cacheTimeout;
+    
+    OPOF_DEPRECATED(ACTION_VALUE_T actType);
+    OPOF_DEPRECATED(struct in_addr  nextHop);
+    OPOF_DEPRECATED(struct in6_addr nextHopV6);
 } sessionRequest_t;
 
 
