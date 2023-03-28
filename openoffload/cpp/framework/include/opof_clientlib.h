@@ -46,11 +46,23 @@ typedef struct sessionTable sessionTable_t;
 
 sessionTable_t * opof_create_sessionTable(const char * host, unsigned int port, const char *public_key);
 void opof_delete_sessionTable( sessionTable_t *session);
+int getServiceVersion(
+    sessionTable_t *sessionHandle,
+    const char **vendor,
+    const char **name,
+    const char **version,
+    const char **copyright);
 int opof_add_session(int size, sessionTable_t *sessionHandle,  sessionRequest_t **parameters, addSessionResponse_t *resp);
 int opof_del_session(sessionTable_t *sessionHandle,  unsigned long  sessionId, sessionResponse_t *resp);
 int opof_get_session(sessionTable_t *sessionHandle,  unsigned long  sessionId , sessionResponse_t *resp);
 int opof_get_all_sessions(sessionTable_t *sessionHandle, uint64_t *sessionStart,int pageSize, sessionResponse_t responses[], unsigned long *sessionCount);
 int opof_get_closed_sessions(streamArgs_t *args,sessionResponse_t responses[], unsigned long *sessionCount);
+int opof_add_vlan_flow(sessionTable_t *sessionHandle, uint16_t vlan_id, uint16_t vf_index);
+int opof_remove_vlan_flow(sessionTable_t *sessionHandle, uint16_t vlan_id);
+size_t opof_get_vlan_flow_count(sessionTable_t *sessionHandle);
+int opof_get_vlan_flows(sessionTable_t *sessionHandle, uint16_t *vlan_ids, uint16_t *vf_indices, size_t vlanFlowMaxCount, size_t * vlanFlowActualCount);
+int opof_clear_vlan_flows(sessionTable_t *sessionHandle);
+
 #ifdef __cplusplus
 }
 #endif

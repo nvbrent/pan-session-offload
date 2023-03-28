@@ -31,11 +31,15 @@ extern "C" {
 
 class SessionTableImpl final : public SessionTable::Service {
 public:  
+    Status getServiceVersion(ServerContext* context, const versionRequest* request, versionResponse* response) override;
     Status addSession(ServerContext* context, ServerReader<sessionRequest>* reader, addSessionResponse* response) override;
     Status getSession(ServerContext* context, const sessionId* sid, sessionResponse* response) override;
     Status deleteSession(ServerContext* context, const sessionId* sid, sessionResponse* response) override;
     Status getAllSessions(ServerContext* context, const sessionRequestArgs* request, sessionResponses *responseArray) override;
     Status getClosedSessions(ServerContext* context,  const sessionRequestArgs* response,ServerWriter<sessionResponse>* writer) override;
+    Status addVlanFlow(ServerContext* context, const vlanFlowDef* request, sessionResponse* response) override;
+    Status getVlanFlows(ServerContext* context, const vlanFlowListRequest* request, vlanFlowList* response) override;
+    Status clearVlanFlows(ServerContext* context, const vlanFlowListRequest* request, sessionResponse* response) override;
 };
 
 

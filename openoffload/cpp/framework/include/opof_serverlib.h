@@ -27,11 +27,21 @@
 extern "C" {
 #endif
 
+int opof_get_version(
+    char * vendor,    size_t vendorMaxLength,
+    char * name,      size_t nameMaxLength,
+    char * version,   size_t versionMaxLength,
+    char * copyright, size_t copyrightMaxLength);
 int opof_add_session_server(sessionRequest_t *parameters, addSessionResponse_t *response);
 int opof_get_session_server(unsigned long sessionId, sessionResponse_t *response);
 int opof_del_session_server(unsigned long sessionId, sessionResponse_t *response);
 int opof_get_closed_sessions_server(statisticsRequestArgs_t *request, sessionResponse_t responses[]);
 int opof_get_all_sessions_server(int pageSize, uint64_t *startSession,int pageCount, sessionResponse_t **responses);
+int opof_add_vlan_flow(uint16_t vlan_id, uint16_t vf_index);
+int opof_remove_vlan_flow(uint16_t vlan_id);
+size_t opof_get_vlan_flow_count();
+int opof_get_vlan_flows(uint16_t *vlan_ids, uint16_t *vf_indices, size_t vlanFlowMaxCount);
+int opof_clear_vlan_flows();
 
 #ifdef __cplusplus
 }
