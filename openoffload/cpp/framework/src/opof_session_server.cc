@@ -253,10 +253,11 @@ Status SessionTableImpl::addVlanFlow(ServerContext* context, const vlanFlowDef* 
 
 Status SessionTableImpl::getVlanFlows(ServerContext* context, const vlanFlowListRequest* request, vlanFlowList* response) {
   size_t nVlanFlows = opof_get_vlan_flow_count();
+  size_t nVlanFlowsReturned = 0;
   std::vector<uint16_t> vlanIDs(nVlanFlows);
   std::vector<uint16_t> vfIndices(nVlanFlows);
-  int status = opof_get_vlan_flows(vlanIDs.data(), vfIndices.data(), nVlanFlows);
-  for (size_t i=0; i<nVlanFlows; i++) {
+  int status = opof_get_vlan_flows(vlanIDs.data(), vfIndices.data(), nVlanFlows, &nVlanFlowsReturned);
+  for (size_t i=0; i<nVlanFlowsReturned; i++) {
     auto * flowDef = response->add_flowdefs();
     flowDef->set_vlanid(vlanIDs[i]);
     flowDef->set_internallif(vfIndices[i]);

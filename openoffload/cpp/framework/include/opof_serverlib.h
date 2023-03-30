@@ -40,7 +40,7 @@ int opof_get_all_sessions_server(int pageSize, uint64_t *startSession,int pageCo
 int opof_add_vlan_flow(uint16_t vlan_id, uint16_t vf_index);
 int opof_remove_vlan_flow(uint16_t vlan_id);
 size_t opof_get_vlan_flow_count();
-int opof_get_vlan_flows(uint16_t *vlan_ids, uint16_t *vf_indices, size_t vlanFlowMaxCount);
+int opof_get_vlan_flows(uint16_t *vlan_ids, uint16_t *vf_indices, size_t vlanFlowMaxCount, size_t *vlanFlowActualCount);
 int opof_clear_vlan_flows();
 
 #ifdef __cplusplus
