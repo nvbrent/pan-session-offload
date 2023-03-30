@@ -50,10 +50,10 @@ Status SessionTableImpl::getServiceVersion(ServerContext* context, const version
     return Status::CANCELLED;
   }
   
-  response->set_vendor("acme");
-  response->set_name("generic opof");
-  response->set_version("1.0");
-  response->set_copyright("Copyright 2023");
+  response->set_vendor(vendor);
+  response->set_name(name);
+  response->set_version(version);
+  response->set_copyright(copyright);
   return Status::OK;
 }
 
