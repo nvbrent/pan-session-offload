@@ -71,7 +71,7 @@ static void convertNat2c(
 
 static void convertActionParams2cpp(
   const struct actionParameters_t * actionParams_c, 
-  openoffload::v1::actionParameters * actionParams_pb)
+  openoffload::v1beta1::actionParameters * actionParams_pb)
 {
     actionParams_pb->set_actiontype((ACTION_TYPE)actionParams_c->actionType);
     
@@ -97,7 +97,7 @@ static void convertActionParams2cpp(
 }
 
 static void convertActionParams2c(
-  const openoffload::v1::actionParameters * actionParams_pb,
+  const openoffload::v1beta1::actionParameters * actionParams_pb,
   struct actionParameters_t * actionParams_c)
 {
     actionParams_c->actionType = (ACTION_VALUE_T)actionParams_pb->actiontype();
