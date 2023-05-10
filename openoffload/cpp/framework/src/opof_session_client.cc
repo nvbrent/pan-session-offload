@@ -51,6 +51,43 @@ extern "C" {
 #include "opof_grpc.h"
 #include "opof_session_client.h"
 
+/**  \ingroup clientlibrary
+* \brief Retrieves version information from the offload service.
+* \details On success, the returned string objects are valid for
+*          the lifetime of the client object.
+* \param vendor of the offload service
+* \param name of the offload service
+* \param version of the offload service
+* \param copyright of the offload service
+*/
+int SessionTableClient::getServiceVersion(
+  const char **vendor,
+  const char **name,
+  const char **version,
+  const char **copyright)
+{
+  if (!versionInfo_) {
+    ClientContext context;
+    versionRequest tmpVersionRequest;
+    versionResponse tmpVersionInfo;
+    Status status = stub_->getServiceVersion(&context, tmpVersionRequest, &tmpVersionInfo);
+    if (status.error_code() != Status::OK.error_code()) {
+      return static_cast<int>(status.error_code());
+    }
+    versionInfo_ = std::make_unique<versionResponse>(tmpVersionInfo);
+  }
+
+  // The versionInfo_ object owns the memory for the strings.
+  // The strings returned by this function are valid for the
+  // lifetime of this client.
+  *vendor    = versionInfo_->vendor().c_str();
+  *name      = versionInfo_->name().c_str();
+  *version   = versionInfo_->version().c_str();
+  *copyright = versionInfo_->copyright().c_str();
+
+  return static_cast<int>(Status::OK.error_code());
+}
+
 
 /**  \ingroup clientlibrary
 * \brief
@@ -204,3 +241,85 @@ int  SessionTableClient::getAllSessions(int pageSize, uint64_t *session_start_id
   
   return static_cast<int>(status.error_code());
 }
+
+int SessionTableClient::addVlanFlow(uint16_t vlan_id, uint16_t vf_index)
+{
+  Status status;
+  sessionResponse response;
+  vlanFlowDef request;
+  ClientContext context;
+  std::chrono::system_clock::time_point deadline = std::chrono::system_clock::now() + std::chrono::milliseconds(opof_get_deadline());
+  context.set_deadline(deadline);
+
+  request.set_vlanid(vlan_id);
+  request.set_internallif(vf_index);
+  
+  status = stub_->addVlanFlow(&context, request, &response);
+  
+  return static_cast<int>(status.error_code());
+}
+
+size_t SessionTableClient::getVlanFlowCount()
+{
+  Status status;
+  vlanFlowList response;
+  vlanFlowListRequest request;
+  ClientContext context;
+  std::chrono::system_clock::time_point deadline = std::chrono::system_clock::now() + std::chrono::milliseconds(opof_get_deadline());
+  context.set_deadline(deadline);
+
+  status = stub_->getVlanFlows(&context, request, &response);
+
+  if (status.error_code() == Status::OK.error_code())
+  {
+    return response.flowdefs_size();
+  }  
+  return -1;
+}
+
+int SessionTableClient::getVlanFlows(
+  uint16_t *vlan_ids, 
+  uint16_t *vf_indices, 
+  size_t vlanFlowMaxCount,
+  size_t * vlanFlowActualCount)
+{
+  Status status;
+  vlanFlowList response;
+  vlanFlowListRequest request;
+  ClientContext context;
+  std::chrono::system_clock::time_point deadline = std::chrono::system_clock::now() + std::chrono::milliseconds(opof_get_deadline());
+  context.set_deadline(deadline);
+
+  if (vlanFlowActualCount)
+    *vlanFlowActualCount = 0;
+
+  status = stub_->getVlanFlows(&context, request, &response);
+
+  if (status.error_code() == Status::OK.error_code() &&
+    response.flowdefs_size() <= vlanFlowMaxCount)
+  {
+    for (size_t i=0; i<response.flowdefs_size(); i++) {
+      vlan_ids[i] = response.flowdefs(i).vlanid();
+      vf_indices[i] = response.flowdefs(i).internallif();
+    }
+
+    if (vlanFlowActualCount)
+      *vlanFlowActualCount = response.flowdefs_size();
+  }
+
+  return static_cast<int>(status.error_code());
+}
+
+int SessionTableClient::clearVlanFlows()
+{
+  Status status;
+  sessionResponse response;
+  vlanFlowListRequest request;
+  ClientContext context;
+  std::chrono::system_clock::time_point deadline = std::chrono::system_clock::now() + std::chrono::milliseconds(opof_get_deadline());
+  context.set_deadline(deadline);
+
+  status = stub_->clearVlanFlows(&context, request, &response);
+  return static_cast<int>(status.error_code());
+}
+

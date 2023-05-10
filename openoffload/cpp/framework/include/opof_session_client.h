@@ -40,6 +40,21 @@ public:
 	 */
     SessionTableClient(std::shared_ptr<Channel> channel)
     : stub_(SessionTable::NewStub(channel)) {};
+
+    /** \brief Retrieves version information from the offload service.
+    * \details On success, the returned string objects are valid for
+    *          the lifetime of the client object.
+    * \param vendor of the offload service
+    * \param name of the offload service
+    * \param version of the offload service
+    * \param copyright of the offload service
+    */
+    int getServiceVersion(
+        const char **vendor,
+        const char **name,
+        const char **version,
+        const char **copyright);
+
      /** \brief adds a session to the server
       *
       * \param size
@@ -54,8 +69,13 @@ public:
     int deleteSessionClient(int session, sessionResponse_t *resp);
     int getAllSessions(int pageSize, uint64_t *start_session, uint64_t *sessions, sessionResponse_t responses[],unsigned long *sessionCount);
     int getClosedSessions(statisticsRequestArgs_t *args, sessionResponse_t responses[], unsigned long *sessionCount);
+    int addVlanFlow(uint16_t vlan_id, uint16_t vf_index);
+    size_t getVlanFlowCount();
+    int getVlanFlows(uint16_t *vlan_ids, uint16_t *vf_indices, size_t vlanFlowMaxCount, size_t * vlanFlowActualCount);
+    int clearVlanFlows();
 private:
     std::unique_ptr<SessionTable::Stub> stub_;
+    std::unique_ptr<versionResponse> versionInfo_;
 };
 
 

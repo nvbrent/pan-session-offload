@@ -127,6 +127,7 @@ enum TUNNEL_TYPE{
 // in v1alpha4 to simplfy the code.
 //
 service SessionTable {
+rpc getServiceVersion(versionRequest) returns (versionResponse) {}
 //
 // Adds a session
 // This was changed in v1alpha4 to be a streaming API, for performance
@@ -146,8 +147,19 @@ rpc getAllSessions(sessionRequestArgs) returns (sessionResponses) {}
 // statistics as a outgoing session from the WB to Applications ?
 // grpc seems to need a request input streamId is a placeholder
 rpc getClosedSessions(sessionRequestArgs) returns (stream sessionResponse) {}
-
-
+//
+// Assigns forwarding to an interface based on vlan tag.
+// Each VLAN ID must be unique.
+rpc addVlanFlow(vlanFlowDef) returns (sessionResponse) {}
+//
+// Removes a vlan flow assignment by its VLAN ID.
+rpc removeFlanFlow(vlanFlowDef) returns (sessionResponse) {}
+//
+// assigns forwarding to an interface based on vlan tag
+rpc getVlanFlows(vlanFlowListRequest) returns (vlanFlowList) {}
+//
+// removes all vlan flows
+rpc clearVlanFlows(vlanFlowListRequest) returns (sessionResponse) {}
 }
 
 // should the Application assign the sessionID on AddSession and avoid conflicts
@@ -277,4 +289,24 @@ message sessionRequestArgs{
   uint32  page=2;
   uint64  startSession=3;
   //  what other arguments make sense for retrieving or filtering streams 
+}
+
+message versionRequest {}
+
+message versionResponse {
+  string vendor = 1;
+  string name = 2;
+  string version = 3;
+  string copyright = 4;
+}
+
+message vlanFlowDef{
+  uint32 vlanId = 1;
+  uint32 internalLif = 2;
+}
+
+message vlanFlowListRequest{}
+
+message vlanFlowList{
+  repeated vlanFlowDef flowDefs = 1;
 }

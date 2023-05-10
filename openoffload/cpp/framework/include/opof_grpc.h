@@ -68,5 +68,10 @@ using openoffload::v1::SESSION_CLOSE_CODE;
 using openoffload::v1::actionParameters;
 using openoffload::v1::MACRewrite;
 using openoffload::v1::NAT;
+using openoffload::v1::versionRequest;
+using openoffload::v1::versionResponse;
+using openoffload::v1::vlanFlowDef;
+using openoffload::v1::vlanFlowList;
+using openoffload::v1::vlanFlowListRequest;
 
 #endif // _OPOF_GRPC_H

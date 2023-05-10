@@ -33,6 +33,30 @@ extern "C" {
 #include "opof_grpc.h"
 #include "opof_session_server.h"
 
+Status SessionTableImpl::getServiceVersion(ServerContext* context, const versionRequest* request, versionResponse* response) {
+  static constexpr size_t STR_BUFFER_LENGTH = 512;
+
+  char vendor[STR_BUFFER_LENGTH];
+  char name[STR_BUFFER_LENGTH];
+  char version[STR_BUFFER_LENGTH];
+  char copyright[STR_BUFFER_LENGTH];
+  int status = opof_get_version(
+    vendor, STR_BUFFER_LENGTH,
+    name, STR_BUFFER_LENGTH,
+    version, STR_BUFFER_LENGTH,
+    copyright, STR_BUFFER_LENGTH);
+  
+  if (status) {
+    return Status::CANCELLED;
+  }
+  
+  response->set_vendor(vendor);
+  response->set_name(name);
+  response->set_version(version);
+  response->set_copyright(copyright);
+  return Status::OK;
+}
+
 /** \ingroup serverlibrary
 * \brief addSession
 *
@@ -218,5 +242,30 @@ Status SessionTableImpl::getClosedSessions(ServerContext* context, const session
     
   }
   
+  return Status::OK;
+}
+
+Status SessionTableImpl::addVlanFlow(ServerContext* context, const vlanFlowDef* request, sessionResponse* response) {
+  int status = opof_add_vlan_flow(request->vlanid(), request->internallif());
+  response->set_requeststatus(status == 0 ? REQUEST_STATUS::_ACCEPTED : REQUEST_STATUS::_REJECTED);
+  return Status::OK;
+}
+
+Status SessionTableImpl::getVlanFlows(ServerContext* context, const vlanFlowListRequest* request, vlanFlowList* response) {
+  size_t nVlanFlows = opof_get_vlan_flow_count();
+  size_t nVlanFlowsReturned = 0;
+  std::vector<uint16_t> vlanIDs(nVlanFlows);
+  std::vector<uint16_t> vfIndices(nVlanFlows);
+  int status = opof_get_vlan_flows(vlanIDs.data(), vfIndices.data(), nVlanFlows, &nVlanFlowsReturned);
+  for (size_t i=0; i<nVlanFlowsReturned; i++) {
+    auto * flowDef = response->add_flowdefs();
+    flowDef->set_vlanid(vlanIDs[i]);
+    flowDef->set_internallif(vfIndices[i]);
+  }
+  return Status::OK;
+}
+
+Status SessionTableImpl::clearVlanFlows(ServerContext* context, const vlanFlowListRequest* request, sessionResponse* response) {
+  opof_clear_vlan_flows();
   return Status::OK;
 }

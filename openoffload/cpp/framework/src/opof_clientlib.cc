@@ -87,6 +87,27 @@ void opof_delete_sessionTable(sessionTable_t *sessionHandle){
 	delete client;
 	free(sessionHandle);
 }
+
+/** \brief Retrieves version information from the offload service.
+* \details On success, the returned string objects are valid for
+*          the lifetime of the client object.
+* \param vendor of the offload service
+* \param name of the offload service
+* \param version of the offload service
+* \param copyright of the offload service
+* \return  SUCCESS or FAILURE Returns the status from the infrastructure.
+*/
+int getServiceVersion(
+	sessionTable_t *sessionHandle,
+    const char **vendor,
+    const char **name,
+    const char **version,
+    const char **copyright)
+{
+	SessionTableClient *client = static_cast<SessionTableClient *>(sessionHandle->obj);
+	return client->getServiceVersion(vendor, name, version, copyright);
+}
+
 /**  \ingroup clientcinterface
 * \brief Add sessions to the offload device in batches of up to 64.
 *
@@ -197,4 +218,29 @@ int opof_get_all_sessions(sessionTable_t *sessionHandle, uint64_t *startSession,
 
 	status = client->getAllSessions(pageSize, startSession, sessionCount,responses, sessionCount);
 	return status;
+}
+
+
+int opof_add_vlan_flow(sessionTable_t *sessionHandle, uint16_t vlan_id, uint16_t vf_index)
+{
+	SessionTableClient *client = static_cast<SessionTableClient *>(sessionHandle->obj);
+	return client->addVlanFlow(vlan_id, vf_index);
+}
+
+size_t opof_get_vlan_flow_count(sessionTable_t *sessionHandle)
+{
+	SessionTableClient *client = static_cast<SessionTableClient *>(sessionHandle->obj);
+	return client->getVlanFlowCount();
+}
+
+int opof_get_vlan_flows(sessionTable_t *sessionHandle, uint16_t *vlan_ids, uint16_t *vf_indices, size_t vlanFlowMaxCount, size_t * vlanFlowActualCount)
+{
+	SessionTableClient *client = static_cast<SessionTableClient *>(sessionHandle->obj);
+	return client->getVlanFlows(vlan_ids, vf_indices, vlanFlowMaxCount, vlanFlowActualCount);
+}
+
+int opof_clear_vlan_flows(sessionTable_t *sessionHandle)
+{
+	SessionTableClient *client = static_cast<SessionTableClient *>(sessionHandle->obj);
+	return client->clearVlanFlows();
 }
