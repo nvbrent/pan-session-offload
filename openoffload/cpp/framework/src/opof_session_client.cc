@@ -74,7 +74,7 @@ int SessionTableClient::getServiceVersion(
     if (status.error_code() != Status::OK.error_code()) {
       return static_cast<int>(status.error_code());
     }
-    versionInfo_ = std::make_unique<versionResponse>(tmpVersionInfo);
+    versionInfo_.reset(new versionResponse(tmpVersionInfo));
   }
 
   // The versionInfo_ object owns the memory for the strings.
