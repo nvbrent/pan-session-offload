@@ -227,6 +227,12 @@ int opof_add_vlan_flow(sessionTable_t *sessionHandle, uint16_t vlan_id, uint16_t
 	return client->addVlanFlow(vlan_id, vf_index);
 }
 
+int opof_remove_vlan_flow(sessionTable_t *sessionHandle, uint16_t vlan_id)
+{
+	SessionTableClient *client = static_cast<SessionTableClient *>(sessionHandle->obj);
+	return client->removeVlanFlow(vlan_id);
+}
+
 size_t opof_get_vlan_flow_count(sessionTable_t *sessionHandle)
 {
 	SessionTableClient *client = static_cast<SessionTableClient *>(sessionHandle->obj);

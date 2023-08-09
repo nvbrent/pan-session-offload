@@ -38,6 +38,7 @@ public:
     Status getAllSessions(ServerContext* context, const sessionRequestArgs* request, sessionResponses *responseArray) override;
     Status getClosedSessions(ServerContext* context,  const sessionRequestArgs* response,ServerWriter<sessionResponse>* writer) override;
     Status addVlanFlow(ServerContext* context, const vlanFlowDef* request, sessionResponse* response) override;
+    Status removeVlanFlow(ServerContext* context, const vlanFlowDef* request, sessionResponse* response) override;
     Status getVlanFlows(ServerContext* context, const vlanFlowListRequest* request, vlanFlowList* response) override;
     Status clearVlanFlows(ServerContext* context, const vlanFlowListRequest* request, sessionResponse* response) override;
 };

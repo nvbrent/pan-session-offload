@@ -37,11 +37,11 @@ int opof_get_session_server(unsigned long sessionId, sessionResponse_t *response
 int opof_del_session_server(unsigned long sessionId, sessionResponse_t *response);
 int opof_get_closed_sessions_server(statisticsRequestArgs_t *request, sessionResponse_t responses[]);
 int opof_get_all_sessions_server(int pageSize, uint64_t *startSession,int pageCount, sessionResponse_t **responses);
-int opof_add_vlan_flow(uint16_t vlan_id, uint16_t vf_index);
-int opof_remove_vlan_flow(uint16_t vlan_id);
-size_t opof_get_vlan_flow_count();
-int opof_get_vlan_flows(uint16_t *vlan_ids, uint16_t *vf_indices, size_t vlanFlowMaxCount, size_t *vlanFlowActualCount);
-int opof_clear_vlan_flows();
+int opof_add_vlan_flow_server(uint16_t vlan_id, uint16_t vf_index);
+int opof_remove_vlan_flow_server(uint16_t vlan_id);
+size_t opof_get_vlan_flow_count_server();
+int opof_get_vlan_flows_server(uint16_t *vlan_ids, uint16_t *vf_indices, size_t vlanFlowMaxCount, size_t *vlanFlowActualCount);
+int opof_clear_vlan_flows_server();
 
 #ifdef __cplusplus
 }

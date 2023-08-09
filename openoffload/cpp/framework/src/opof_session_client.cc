@@ -259,6 +259,22 @@ int SessionTableClient::addVlanFlow(uint16_t vlan_id, uint16_t vf_index)
   return static_cast<int>(status.error_code());
 }
 
+int SessionTableClient::removeVlanFlow(uint16_t vlan_id)
+{
+  Status status;
+  sessionResponse response;
+  vlanFlowDef request;
+  ClientContext context;
+  std::chrono::system_clock::time_point deadline = std::chrono::system_clock::now() + std::chrono::milliseconds(opof_get_deadline());
+  context.set_deadline(deadline);
+
+  request.set_vlanid(vlan_id);
+  
+  status = stub_->removeVlanFlow(&context, request, &response);
+  
+  return static_cast<int>(status.error_code());
+}
+
 size_t SessionTableClient::getVlanFlowCount()
 {
   Status status;
