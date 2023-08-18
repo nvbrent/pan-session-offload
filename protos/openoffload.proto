@@ -147,6 +147,10 @@ rpc getAllSessions(sessionRequestArgs) returns (sessionResponses) {}
 // statistics as a outgoing session from the WB to Applications ?
 // grpc seems to need a request input streamId is a placeholder
 rpc getClosedSessions(sessionRequestArgs) returns (stream sessionResponse) {}
+
+rpc addNextHop(nextHopParameters) returns (sessionResponse) {}
+rpc destroyNextHop(deleteNextHop) returns (sessionResponse) {}
+
 //
 // Assigns forwarding to an interface based on vlan tag.
 // Each VLAN ID must be unique.
@@ -184,35 +188,46 @@ message NAT{
   uint32 port = 3;
 }
 
+message nextHopParameters{
+  uint32 nextHopId = 1;
+
+  // L3 Support: overwrite src/dst MAC for each link interface
+  // - The presense of MAC rewrite fields implies a TTL decrement for TCP flows.
+  // - For encapsulated traffic, the rewrite action applies to outermost packet header.
+  MACRewrite macRewrite = 2;
+
+  // NAT Support: overwrite src/dst L3/L4 fields
+  // - For outLif, source fields are overwritten
+  // - For inLif, destination fields are overwritten
+  // - For encapsulated traffic, applies to outermost packet header.
+  NAT nat = 3;
+
+  // VLAN Mapping: re-write VLAN tags, if present
+  // - If non-zero, overwrite VLAN tag as specified for each link interface
+  // - The sessionRequest vlan fields must also be present (this command does
+  //   not create a VLAN tag if one is not already present).
+  // - For encapsulated traffic, applies to outermost packet header.
+  uint32 vlan = 4;
+}
+
+// Destroys a given NextHop parameter instance, as well
+// as all sessions which reference it (on either LIF).
+message deleteNextHop{
+  uint32 nextHopId = 1;
+}
+
 // MIRROR and SNOOP require an actionNextHop
 // DROP and FORWARD do not have an actionNextHop
 // The IPV4 nextHop definition maps to the V4 struct returned by inet_pton which is a uint32_t.
 // The IPV6 nextHop definition maps to the V6 struct returned by inet_ptoN which is a uint8_t s6_addr[16]
 message actionParameters{
      ACTION_TYPE  actionType = 1;
-     uint32 actionNextHop = 2;
-     bytes actionNextHopV6 = 3;
 
-     // L3 Support: overwrite src/dst MAC for each link interface
-     // - The presense of MAC rewrite fields implies a TTL decrement for TCP flows.
-     // - For encapsulated traffic, the rewrite action applies to outermost packet header.
-     MACRewrite macRewrite_inLif = 11;
-     MACRewrite macRewrite_outLif = 12;
+     uint32 actionNextHop = 2; // obsolete
+     bytes actionNextHopV6 = 3; // obsolete
 
-     // NAT Support: overwrite src/dst L3/L4 fields
-     // - For outLif, source fields are overwritten
-     // - For inLif, destination fields are overwritten
-     // - For encapsulated traffic, applies to outermost packet header.
-     NAT srcNat_outLif = 13;
-     NAT dstNat_inLif = 14;
-
-     // VLAN Mapping: re-write VLAN tags, if present
-     // - If non-zero, overwrite VLAN tag as specified for each link interface
-     // - The sessionRequest vlan fields must also be present (this command does
-     //   not create a VLAN tag if one is not already present).
-     // - For encapsulated traffic, applies to outermost packet header.
-     uint32 vlan_outLif = 15;
-     uint32 vlan_inLif = 16;
+     uint32 nextHopId_inLif = 17;
+     uint32 nextHopId_outLif = 18;
 }
 
 // sessionId is returned by server side upon successful addSession
@@ -244,6 +259,7 @@ message sessionRequest{
   PROTOCOL_ID protocolId = 11;
 
   actionParameters action = 12;
+
   uint32 cacheTimeout = 13;
 }
 
