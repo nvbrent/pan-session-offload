@@ -69,64 +69,68 @@ static void convertNat2c(
   nat_c->port = nat_pb->port();
 }
 
+static void convertNextHop2cpp(
+  const struct nextHopParameters_t *nextHop_c,
+  nextHopParameters *nextHop_pb)
+{
+    if (nextHop_c->macRewriteEnable) {
+      convertMacRewrite2cpp(&nextHop_c->macRewrite, nextHop_pb->mutable_macrewrite());
+    } else {
+      nextHop_pb->clear_macrewrite();
+    }
+
+    if (nextHop_c->natEnable) {
+      convertNat2cpp(&nextHop_c->nat, nextHop_pb->mutable_nat());
+    } else {
+      nextHop_pb->clear_nat();
+    }
+    nextHop_pb->set_vlan(nextHop_c->vlan);
+}
+
+static void convertNextHop2c(
+  const nextHopParameters *nextHop_pb,
+  struct nextHopParameters_t *nextHop_c)
+{
+    nextHop_c->macRewriteEnable = nextHop_pb->has_macrewrite();
+    
+    if (nextHop_c->macRewriteEnable)
+    {
+      convertMacRewrite2c(&nextHop_pb->macrewrite(),  &nextHop_c->macRewrite);
+    }
+
+    nextHop_c->natEnable = nextHop_pb->has_nat();
+    
+    if (nextHop_c->natEnable)
+    {
+      nextHop_c->natEnable = true;
+      convertNat2c(&nextHop_pb->nat(),  &nextHop_c->nat);
+    }
+    
+    nextHop_c->vlan = nextHop_pb->vlan();
+}
+
 static void convertActionParams2cpp(
   const struct actionParameters_t * actionParams_c, 
-  openoffload::v1beta1::actionParameters * actionParams_pb)
+  actionParameters * actionParams_pb)
 {
     actionParams_pb->set_actiontype((ACTION_TYPE)actionParams_c->actionType);
     
     // obsolete: actionNextHop, actionNextHopV6
 
-    if (actionParams_c->macRewriteEnable) {
-      convertMacRewrite2cpp(&actionParams_c->macRewrite_inLif,  actionParams_pb->mutable_macrewrite_inlif());
-      convertMacRewrite2cpp(&actionParams_c->macRewrite_outLif, actionParams_pb->mutable_macrewrite_outlif());
-    } else {
-      actionParams_pb->clear_macrewrite_inlif();
-      actionParams_pb->clear_macrewrite_outlif();
-    }
-
-    if (actionParams_c->natEnable) {
-      convertNat2cpp(&actionParams_c->srcNat_outLif, actionParams_pb->mutable_srcnat_outlif());
-      convertNat2cpp(&actionParams_c->dstNat_inLif,  actionParams_pb->mutable_dstnat_inlif());
-    } else {
-      actionParams_pb->clear_srcnat_outlif();
-      actionParams_pb->clear_dstnat_inlif();
-    }
-    actionParams_pb->set_vlan_inlif(actionParams_c->vlan_inLif);
-    actionParams_pb->set_vlan_outlif(actionParams_c->vlan_outLif);
+    actionParams_pb->set_nexthopid_inlif(actionParams_c->nextHopId_inLif);
+    actionParams_pb->set_nexthopid_outlif(actionParams_c->nextHopId_outLif);
 }
 
 static void convertActionParams2c(
-  const openoffload::v1beta1::actionParameters * actionParams_pb,
+  const actionParameters * actionParams_pb,
   struct actionParameters_t * actionParams_c)
 {
     actionParams_c->actionType = (ACTION_VALUE_T)actionParams_pb->actiontype();
 
     // obsolete: actionNextHop, actionNextHopV6
 
-    actionParams_c->macRewriteEnable = 
-        actionParams_pb->has_macrewrite_inlif() &&
-        actionParams_pb->has_macrewrite_outlif();
-    
-    if (actionParams_c->macRewriteEnable)
-    {
-      convertMacRewrite2c(&actionParams_pb->macrewrite_inlif(),  &actionParams_c->macRewrite_inLif);
-      convertMacRewrite2c(&actionParams_pb->macrewrite_outlif(), &actionParams_c->macRewrite_outLif);
-    }
-
-    actionParams_c->natEnable =
-        actionParams_pb->has_srcnat_outlif() &&
-        actionParams_pb->has_dstnat_inlif();
-    
-    if (actionParams_c->natEnable)
-    {
-      actionParams_c->natEnable = true;
-      convertNat2c(&actionParams_pb->dstnat_inlif(),  &actionParams_c->dstNat_inLif);
-      convertNat2c(&actionParams_pb->srcnat_outlif(), &actionParams_c->srcNat_outLif);
-    }
-    
-    actionParams_c->vlan_inLif  = actionParams_pb->vlan_inlif();
-    actionParams_c->vlan_outLif = actionParams_pb->vlan_outlif();
+    actionParams_c->nextHopId_inLif = actionParams_pb->nexthopid_inlif();
+    actionParams_c->nextHopId_outLif = actionParams_pb->nexthopid_outlif();
 }
 
 /** \ingroup utilities
@@ -250,3 +254,19 @@ void convertSessionRequest2c(sessionRequest &request, sessionRequest_t *request_
     convertActionParams2c(&request.action(), &request_c->actionParams);
     request_c->cacheTimeout = request.cachetimeout();
  }
+
+void convertNextHopResponse2c(
+  const nextHopResponse *responsecpp, 
+  struct nexthopResponse_t *responsec)
+{
+  responsec->nextHopId = responsecpp->nexthopid();
+  responsec->errorStatus = responsecpp->errorstatus();
+}
+
+void convertNextHopResponse2cpp(
+  const struct nexthopResponse_t *responsec,
+  nextHopResponse *responsecpp)
+{
+  responsecpp->set_nexthopid(responsec->nextHopId);
+  responsecpp->set_errorstatus(responsec->errorStatus);
+}

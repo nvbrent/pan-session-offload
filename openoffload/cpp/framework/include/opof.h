@@ -235,18 +235,21 @@ typedef struct nat_t {
   uint16_t port;
 } nat_t;
 
-typedef struct actionParameters_t {
-  ACTION_VALUE_T actionType;
-
+/**
+ * Actions which modify the packet header
+ * to implement next-hop routing.
+ */
+typedef struct nextHopParameters_t {
+  uint32_t nextHopId;
+  
   /**
    * L3 Support: overwrite src/dst MAC for each link interface
    * - The presense of MAC rewrite fields implies a TTL decrement for TCP flows.
    * - For encapsulated traffic, the rewrite action applies to outermost packet header.
    */
   bool macRewriteEnable;
-  struct macRewrite_t macRewrite_inLif;
-  struct macRewrite_t macRewrite_outLif;
-
+  struct macRewrite_t macRewrite;
+  
   /**
    * NAT Support: overwrite src/dst L3/L4 fields
    * - For outLif, source fields are overwritten
@@ -254,9 +257,8 @@ typedef struct actionParameters_t {
    * - For encapsulated traffic, applies to outermost packet header.
    */
   bool natEnable;
-  struct nat_t srcNat_outLif;
-  struct nat_t dstNat_inLif;
-
+  struct nat_t nat;
+  
   /**
    * VLAN Mapping: re-write VLAN tags, if present
    * - If non-zero, overwrite VLAN tag as specified for each link interface
@@ -264,8 +266,14 @@ typedef struct actionParameters_t {
    *   not create a VLAN tag if one is not already present).
    * - For encapsulated traffic, applies to outermost packet header.
    */
-  uint16_t vlan_outLif;
-  uint16_t vlan_inLif;
+  uint16_t vlan;
+} nextHopParameters_t;
+
+typedef struct actionParameters_t {
+  ACTION_VALUE_T actionType;
+
+  uint32_t nextHopId_inLif;
+  uint32_t nextHopId_outLif;
 } actionParameters_t;
 
 /** @struct streamArgs_t
@@ -379,5 +387,9 @@ typedef struct sessionRequestTuple {
     OPOF_DEPRECATED(struct in6_addr nextHopV6);
 } sessionRequest_t;
 
+typedef struct nexthopResponse_t {
+  uint32_t nextHopId;
+  int32_t errorStatus;
+} nexthopResponse_t;
 
 #endif  /* OPOF_H */

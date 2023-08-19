@@ -147,10 +147,17 @@ rpc getAllSessions(sessionRequestArgs) returns (sessionResponses) {}
 // statistics as a outgoing session from the WB to Applications ?
 // grpc seems to need a request input streamId is a placeholder
 rpc getClosedSessions(sessionRequestArgs) returns (stream sessionResponse) {}
-
-rpc addNextHop(nextHopParameters) returns (sessionResponse) {}
-rpc destroyNextHop(deleteNextHop) returns (sessionResponse) {}
-
+//
+// Create a next-hop parameter specification to be referenced
+// by one or more sessions, for its inLif and/or outLif.
+// If the nextHopId is already in use, the new definition
+// will replace it, affecting all sessions which reference it.
+rpc setNextHop(nextHopParameters) returns (nextHopResponse) {}
+//
+// Destroys a next-hop parameter specification, as well as
+// any sessions which reference it, for either inLif or
+// outLif nextHopID.
+rpc destroyNextHop(nextHopParameters) returns (nextHopResponse) {}
 //
 // Assigns forwarding to an interface based on vlan tag.
 // Each VLAN ID must be unique.
@@ -189,6 +196,7 @@ message NAT{
 }
 
 message nextHopParameters{
+  // Uniquely identifies a next-hop parameter specification.
   uint32 nextHopId = 1;
 
   // L3 Support: overwrite src/dst MAC for each link interface
@@ -210,12 +218,6 @@ message nextHopParameters{
   uint32 vlan = 4;
 }
 
-// Destroys a given NextHop parameter instance, as well
-// as all sessions which reference it (on either LIF).
-message deleteNextHop{
-  uint32 nextHopId = 1;
-}
-
 // MIRROR and SNOOP require an actionNextHop
 // DROP and FORWARD do not have an actionNextHop
 // The IPV4 nextHop definition maps to the V4 struct returned by inet_pton which is a uint32_t.
@@ -223,8 +225,8 @@ message deleteNextHop{
 message actionParameters{
      ACTION_TYPE  actionType = 1;
 
-     uint32 actionNextHop = 2; // obsolete
-     bytes actionNextHopV6 = 3; // obsolete
+     uint32 actionNextHop = 2 [deprecated = true];
+     bytes actionNextHopV6 = 3 [deprecated = true];
 
      uint32 nextHopId_inLif = 17;
      uint32 nextHopId_outLif = 18;
@@ -268,6 +270,10 @@ message sessionResponseError {
   int32 errorStatus = 2;
 }
 
+message nextHopResponse {
+  uint32 nextHopId = 1;
+  int32 errorStatus = 2;
+}
 
 message sessionResponses {
   repeated sessionResponse sessionInfo = 1;
