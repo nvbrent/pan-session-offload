@@ -37,10 +37,16 @@ void convertAddSessionResponse2c(addSessionResponse_t *response_c, addSessionRes
 void convertSessionResponse2c(sessionResponse *responsecpp, sessionResponse_t *responsec);
 void convertSessionResponse2cpp(sessionResponse *responsecpp, sessionResponse_t *responsec);
 void convertSessionRequest2c(sessionRequest &request, sessionRequest_t *request_c);
+void convertNextHop2cpp(
+  const struct nextHopParameters_t *nextHop_c,
+  nextHopParameters *nextHop_pb);
+void convertNextHop2c(
+  const nextHopParameters *nextHop_pb,
+  struct nextHopParameters_t *nextHop_c);
 void convertNextHopResponse2c(
   const nextHopResponse *responsecpp, 
-  struct nexthopResponse_t *responsec);
+  struct nextHopResponse_t *responsec);
 void convertNextHopResponse2cpp(
-  const struct nexthopResponse_t *responsec,
+  const struct nextHopResponse_t *responsec,
   nextHopResponse *responsecpp);
 #endif

@@ -339,3 +339,41 @@ int SessionTableClient::clearVlanFlows()
   return static_cast<int>(status.error_code());
 }
 
+int SessionTableClient::setNextHop(
+  const struct nextHopParameters_t *nextHop_c, 
+  struct nextHopResponse_t *response_c)
+{
+  ClientContext context;
+  std::chrono::system_clock::time_point deadline = std::chrono::system_clock::now() + std::chrono::milliseconds(opof_get_deadline());
+  context.set_deadline(deadline);
+
+  nextHopParameters request;
+  convertNextHop2cpp(nextHop_c, &request);
+
+  nextHopResponse response;
+  Status status = stub_->setNextHop(&context, request, &response);
+
+  convertNextHopResponse2c(&response, response_c);
+
+  return static_cast<int>(status.error_code());
+}
+
+int SessionTableClient::destroyNextHop(
+  uint32_t nextHopID, 
+  struct nextHopResponse_t *response_c)
+{
+  ClientContext context;
+  std::chrono::system_clock::time_point deadline = std::chrono::system_clock::now() + std::chrono::milliseconds(opof_get_deadline());
+  context.set_deadline(deadline);
+
+  nextHopParameters request;
+  request.set_nexthopid(nextHopID);
+
+  nextHopResponse response;
+  Status status = stub_->destroyNextHop(&context, request, &response);
+  
+  convertNextHopResponse2c(&response, response_c);
+  
+  return static_cast<int>(status.error_code());
+}
+

@@ -387,9 +387,9 @@ typedef struct sessionRequestTuple {
     OPOF_DEPRECATED(struct in6_addr nextHopV6);
 } sessionRequest_t;
 
-typedef struct nexthopResponse_t {
+typedef struct nextHopResponse_t {
   uint32_t nextHopId;
   int32_t errorStatus;
-} nexthopResponse_t;
+} nextHopResponse_t;
 
 #endif  /* OPOF_H */

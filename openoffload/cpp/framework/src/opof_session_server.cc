@@ -276,3 +276,27 @@ Status SessionTableImpl::clearVlanFlows(ServerContext* context, const vlanFlowLi
   opof_clear_vlan_flows_server();
   return Status::OK;
 }
+
+Status SessionTableImpl::setNextHop(
+  ServerContext* context, 
+  const nextHopParameters *nextHop, 
+  struct nextHopResponse *response)
+{
+  struct nextHopParameters_t nextHop_c = {};
+  convertNextHop2c(nextHop, &nextHop_c);
+  int status = opof_set_next_hop_server(&nextHop_c);
+  response->set_errorstatus(status == 0 ? REQUEST_STATUS::_ACCEPTED : REQUEST_STATUS::_REJECTED);
+
+  return Status::OK;
+}
+
+Status SessionTableImpl::destroyNextHop(
+  ServerContext* context, 
+  const nextHopParameters *nextHop, 
+  struct nextHopResponse *response)
+{
+  int status = opof_destroy_next_hop_server(nextHop->nexthopid());
+  response->set_errorstatus(status == 0 ? REQUEST_STATUS::_ACCEPTED : REQUEST_STATUS::_REJECTED);
+
+  return Status::OK;
+}
