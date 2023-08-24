@@ -159,6 +159,10 @@ rpc setNextHop(nextHopParameters) returns (nextHopResponse) {}
 // outLif nextHopID.
 rpc destroyNextHop(nextHopParameters) returns (nextHopResponse) {}
 //
+// Destroys all next-hop objects and all sessions which
+// reference them.
+rpc clearNextHops(nextHopParameters) returns (nextHopResponse) {}
+//
 // Assigns forwarding to an interface based on vlan tag.
 // Each VLAN ID must be unique.
 rpc addVlanFlow(vlanFlowDef) returns (sessionResponse) {}

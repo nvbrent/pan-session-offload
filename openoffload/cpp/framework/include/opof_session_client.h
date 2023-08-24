@@ -74,8 +74,9 @@ public:
     int getVlanFlows(uint16_t *vlan_ids, uint16_t *vf_indices, size_t vlanFlowMaxCount, size_t * vlanFlowActualCount);
     int removeVlanFlow(uint16_t vlan_id);
     int clearVlanFlows();
-    int setNextHop(const struct nextHopParameters_t *nextHop, struct nextHopResponse_t *response);
-    int destroyNextHop(uint32_t nextHopID, struct nextHopResponse_t *response);
+    int setNextHop(const struct nextHopParameters_t *nextHop);
+    int destroyNextHop(uint32_t nextHopID);
+    int clearNextHops();
 private:
     std::unique_ptr<SessionTable::Stub> stub_;
     std::unique_ptr<versionResponse> versionInfo_;

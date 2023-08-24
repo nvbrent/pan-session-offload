@@ -41,8 +41,10 @@ public:
     Status removeVlanFlow(ServerContext* context, const vlanFlowDef* request, sessionResponse* response) override;
     Status getVlanFlows(ServerContext* context, const vlanFlowListRequest* request, vlanFlowList* response) override;
     Status clearVlanFlows(ServerContext* context, const vlanFlowListRequest* request, sessionResponse* response) override;
-    Status setNextHop(ServerContext* context, const nextHopParameters *nextHop, struct nextHopResponse *response) override;
-    Status destroyNextHop(ServerContext* context, const nextHopParameters *nextHop, struct nextHopResponse *response) override;
+    Status setNextHop(ServerContext* context, const nextHopParameters *nextHop, nextHopResponse *response) override;
+    Status destroyNextHop(ServerContext* context, const nextHopParameters *nextHop, nextHopResponse *response) override;
+    Status clearNextHops(ServerContext* context, const nextHopParameters* ignored, nextHopResponse* response);
+
 };
 
 

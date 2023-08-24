@@ -62,6 +62,9 @@ int opof_remove_vlan_flow(sessionTable_t *sessionHandle, uint16_t vlan_id);
 size_t opof_get_vlan_flow_count(sessionTable_t *sessionHandle);
 int opof_get_vlan_flows(sessionTable_t *sessionHandle, uint16_t *vlan_ids, uint16_t *vf_indices, size_t vlanFlowMaxCount, size_t * vlanFlowActualCount);
 int opof_clear_vlan_flows(sessionTable_t *sessionHandle);
+int opof_set_next_hop(sessionTable_t *sessionHandle, nextHopParameters_t *nextHop);
+int opof_destroy_next_hop(sessionTable_t *sessionHandle, uint32_t nextHopId);
+int opof_clear_next_hops(sessionTable_t *sessionHandle);
 
 #ifdef __cplusplus
 }

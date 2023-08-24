@@ -250,3 +250,21 @@ int opof_clear_vlan_flows(sessionTable_t *sessionHandle)
 	SessionTableClient *client = static_cast<SessionTableClient *>(sessionHandle->obj);
 	return client->clearVlanFlows();
 }
+
+int opof_set_next_hop(sessionTable_t *sessionHandle, nextHopParameters_t *nextHop)
+{
+	SessionTableClient *client = static_cast<SessionTableClient *>(sessionHandle->obj);
+	return client->setNextHop(nextHop);
+}
+
+int opof_destroy_next_hop(sessionTable_t *sessionHandle, uint32_t nextHopId)
+{
+	SessionTableClient *client = static_cast<SessionTableClient *>(sessionHandle->obj);
+	return client->destroyNextHop(nextHopId);
+}
+
+int opof_clear_next_hops(sessionTable_t *sessionHandle)
+{
+	SessionTableClient *client = static_cast<SessionTableClient *>(sessionHandle->obj);
+	return client->clearNextHops();
+}
