@@ -42,6 +42,9 @@ int opof_remove_vlan_flow_server(uint16_t vlan_id);
 size_t opof_get_vlan_flow_count_server();
 int opof_get_vlan_flows_server(uint16_t *vlan_ids, uint16_t *vf_indices, size_t vlanFlowMaxCount, size_t *vlanFlowActualCount);
 int opof_clear_vlan_flows_server();
+int opof_set_next_hop_server(struct nextHopParameters_t *nextHop_c);
+int opof_destroy_next_hop_server(uint32_t nextHopId);
+int opof_clear_next_hops_server();
 
 #ifdef __cplusplus
 }
