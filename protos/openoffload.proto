@@ -229,8 +229,8 @@ message nextHopParameters{
 message actionParameters{
      ACTION_TYPE  actionType = 1;
 
-     uint32 actionNextHop = 2 [deprecated = true];
-     bytes actionNextHopV6 = 3 [deprecated = true];
+     uint32 actionNextHop = 2; // deprecated
+     bytes actionNextHopV6 = 3; // deprecated
 
      uint32 nextHopId_inLif = 17;
      uint32 nextHopId_outLif = 18;
