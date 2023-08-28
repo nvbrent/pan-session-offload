@@ -194,8 +194,10 @@ message MACRewrite{
 // These fields may apply to either the source or destionation fields
 // of the packet header, depending on the context.
 message NAT{
+  IP_VERSION ipVersion = 5;
   uint32 ipv4 = 1;
   bytes ipv6 = 2;
+  PROTOCOL_ID protocolId = 6;
   uint32 port = 3;
 }
 
@@ -209,10 +211,9 @@ message nextHopParameters{
   MACRewrite macRewrite = 2;
 
   // NAT Support: overwrite src/dst L3/L4 fields
-  // - For outLif, source fields are overwritten
-  // - For inLif, destination fields are overwritten
   // - For encapsulated traffic, applies to outermost packet header.
-  NAT nat = 3;
+  NAT snat = 5;
+  NAT dnat = 6;
 
   // VLAN Mapping: re-write VLAN tags, if present
   // - If non-zero, overwrite VLAN tag as specified for each link interface

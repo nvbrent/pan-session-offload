@@ -230,8 +230,10 @@ typedef struct macRewrite_t {
  * of the packet header, depending on the context.
  */
 typedef struct nat_t {
+  IP_VERSION_T ipver;
   struct in_addr ipv4;
   struct in6_addr ipv6;
+  PROTOCOL_ID_T proto;
   uint16_t port;
 } nat_t;
 
@@ -252,12 +254,13 @@ typedef struct nextHopParameters_t {
   
   /**
    * NAT Support: overwrite src/dst L3/L4 fields
-   * - For outLif, source fields are overwritten
-   * - For inLif, destination fields are overwritten
    * - For encapsulated traffic, applies to outermost packet header.
    */
-  bool natEnable;
-  struct nat_t nat;
+  bool snatEnable;
+  struct nat_t snat;
+  
+  bool dnatEnable;
+  struct nat_t dnat;
   
   /**
    * VLAN Mapping: re-write VLAN tags, if present
