@@ -53,7 +53,6 @@ static void convertNat2cpp(
   const struct nat_t * nat_c,
   NAT * nat_pb)
 {
-  nat_pb->set_nattype((NAT_TYPE)nat_c->natType);
   nat_pb->set_ipversion((IP_VERSION)nat_c->ipver);
   if (nat_c->ipver == _IPV6){
     nat_pb->mutable_ipv6()->assign(&nat_c->ipv6.s6_addr[0], &nat_c->ipv6.s6_addr[16]);
@@ -68,7 +67,6 @@ static void convertNat2c(
   const NAT * nat_pb,
   struct nat_t * nat_c)
 {
-  nat_c->natType = (NAT_TYPE_T)nat_pb->nattype();
   nat_c->ipver = (IP_VERSION_T)nat_pb->ipversion();
   if (nat_c->ipver == _IPV6) {
     memcpy(nat_c->ipv6.s6_addr, &nat_pb->ipv6()[0], 16);
@@ -89,11 +87,18 @@ void convertNextHop2cpp(
       nextHop_pb->clear_macrewrite();
     }
 
-    if (nextHop_c->natEnable) {
-      convertNat2cpp(&nextHop_c->nat, nextHop_pb->mutable_nat());
+    if (nextHop_c->snatEnable) {
+      convertNat2cpp(&nextHop_c->snat, nextHop_pb->mutable_snat());
     } else {
-      nextHop_pb->clear_nat();
+      nextHop_pb->clear_snat();
     }
+
+    if (nextHop_c->dnatEnable) {
+      convertNat2cpp(&nextHop_c->dnat, nextHop_pb->mutable_dnat());
+    } else {
+      nextHop_pb->clear_dnat();
+    }
+
     nextHop_pb->set_vlan(nextHop_c->vlan);
 }
 
@@ -108,12 +113,16 @@ void convertNextHop2c(
       convertMacRewrite2c(&nextHop_pb->macrewrite(),  &nextHop_c->macRewrite);
     }
 
-    nextHop_c->natEnable = nextHop_pb->has_nat();
-    
-    if (nextHop_c->natEnable)
+    nextHop_c->snatEnable = nextHop_pb->has_snat();    
+    if (nextHop_c->snatEnable)
     {
-      nextHop_c->natEnable = true;
-      convertNat2c(&nextHop_pb->nat(),  &nextHop_c->nat);
+      convertNat2c(&nextHop_pb->snat(),  &nextHop_c->snat);
+    }
+    
+    nextHop_c->dnatEnable = nextHop_pb->has_dnat();    
+    if (nextHop_c->dnatEnable)
+    {
+      convertNat2c(&nextHop_pb->dnat(),  &nextHop_c->dnat);
     }
     
     nextHop_c->vlan = nextHop_pb->vlan();

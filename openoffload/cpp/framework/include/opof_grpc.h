@@ -68,7 +68,6 @@ using openoffload::v1beta1::SESSION_CLOSE_CODE;
 using openoffload::v1beta1::actionParameters;
 using openoffload::v1beta1::MACRewrite;
 using openoffload::v1beta1::NAT;
-using openoffload::v1beta1::NAT_TYPE;
 using openoffload::v1beta1::versionRequest;
 using openoffload::v1beta1::versionResponse;
 using openoffload::v1beta1::vlanFlowDef;

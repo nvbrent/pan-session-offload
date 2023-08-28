@@ -49,11 +49,6 @@ typedef enum {
 } TUNNEL_TYPE_T;
 
 typedef enum {
-  _SRC_NAT = 0,
-  _DST_NAT = 1,
-} NAT_TYPE_T;
-
-typedef enum {
    _DROP = 0,
    _FORWARD = 1,
    _MIRROR = 2,
@@ -235,7 +230,6 @@ typedef struct macRewrite_t {
  * of the packet header, depending on the context.
  */
 typedef struct nat_t {
-  NAT_TYPE_T natType;
   IP_VERSION_T ipver;
   struct in_addr ipv4;
   struct in6_addr ipv6;
@@ -260,12 +254,13 @@ typedef struct nextHopParameters_t {
   
   /**
    * NAT Support: overwrite src/dst L3/L4 fields
-   * - For outLif, source fields are overwritten
-   * - For inLif, destination fields are overwritten
    * - For encapsulated traffic, applies to outermost packet header.
    */
-  bool natEnable;
-  struct nat_t nat;
+  bool snatEnable;
+  struct nat_t snat;
+  
+  bool dnatEnable;
+  struct nat_t dnat;
   
   /**
    * VLAN Mapping: re-write VLAN tags, if present
