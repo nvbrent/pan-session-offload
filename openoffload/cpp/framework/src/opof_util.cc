@@ -53,8 +53,14 @@ static void convertNat2cpp(
   const struct nat_t * nat_c,
   NAT * nat_pb)
 {
-  nat_pb->set_ipv4(nat_c->ipv4.s_addr);
-  nat_pb->mutable_ipv6()->assign(&nat_c->ipv6.s6_addr[0], &nat_c->ipv6.s6_addr[16]);
+  nat_pb->set_nattype((NAT_TYPE)nat_c->natType);
+  nat_pb->set_ipversion((IP_VERSION)nat_c->ipver);
+  if (nat_c->ipver == _IPV6){
+    nat_pb->mutable_ipv6()->assign(&nat_c->ipv6.s6_addr[0], &nat_c->ipv6.s6_addr[16]);
+  } else {
+    nat_pb->set_ipv4(nat_c->ipv4.s_addr);
+  }
+  nat_pb->set_protocolid((PROTOCOL_ID)nat_c->proto);
   nat_pb->set_port(nat_c->port);
 }
 
@@ -62,10 +68,14 @@ static void convertNat2c(
   const NAT * nat_pb,
   struct nat_t * nat_c)
 {
-  nat_c->ipv4.s_addr = nat_pb->ipv4();
-  if (nat_pb->ipv6().length() >= 16) {
+  nat_c->natType = (NAT_TYPE_T)nat_pb->nattype();
+  nat_c->ipver = (IP_VERSION_T)nat_pb->ipversion();
+  if (nat_c->ipver == _IPV6) {
     memcpy(nat_c->ipv6.s6_addr, &nat_pb->ipv6()[0], 16);
+  } else {
+    nat_c->ipv4.s_addr = nat_pb->ipv4();
   }
+  nat_c->proto = (PROTOCOL_ID_T)nat_pb->protocolid();
   nat_c->port = nat_pb->port();
 }
 

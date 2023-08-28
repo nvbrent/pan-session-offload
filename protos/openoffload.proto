@@ -122,6 +122,11 @@ enum TUNNEL_TYPE{
   _GTPU = 1;
 }
 
+enum NAT_TYPE{
+  _SRC_NAT = 0;
+  _DST_NAT = 1;
+}
+
 //
 // The session table was combined with the statistices service
 // in v1alpha4 to simplfy the code.
@@ -194,8 +199,11 @@ message MACRewrite{
 // These fields may apply to either the source or destionation fields
 // of the packet header, depending on the context.
 message NAT{
+  NAT_TYPE natType = 4;
+  IP_VERSION ipVersion = 5;
   uint32 ipv4 = 1;
   bytes ipv6 = 2;
+  PROTOCOL_ID protocolId = 6;
   uint32 port = 3;
 }
 
