@@ -81,6 +81,8 @@ void convertNextHop2cpp(
   const struct nextHopParameters_t *nextHop_c,
   nextHopParameters *nextHop_pb)
 {
+    nextHop_pb->set_nexthopid(nextHop_c->nextHopId);
+    
     if (nextHop_c->macRewriteEnable) {
       convertMacRewrite2cpp(&nextHop_c->macRewrite, nextHop_pb->mutable_macrewrite());
     } else {
@@ -106,8 +108,9 @@ void convertNextHop2c(
   const nextHopParameters *nextHop_pb,
   struct nextHopParameters_t *nextHop_c)
 {
-    nextHop_c->macRewriteEnable = nextHop_pb->has_macrewrite();
-    
+    nextHop_c->nextHopId = nextHop_pb->nexthopid();
+
+    nextHop_c->macRewriteEnable = nextHop_pb->has_macrewrite();    
     if (nextHop_c->macRewriteEnable)
     {
       convertMacRewrite2c(&nextHop_pb->macrewrite(),  &nextHop_c->macRewrite);
