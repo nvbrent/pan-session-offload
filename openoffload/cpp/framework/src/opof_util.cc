@@ -88,20 +88,6 @@ void convertNextHop2cpp(
     } else {
       nextHop_pb->clear_macrewrite();
     }
-
-    if (nextHop_c->snatEnable) {
-      convertNat2cpp(&nextHop_c->snat, nextHop_pb->mutable_snat());
-    } else {
-      nextHop_pb->clear_snat();
-    }
-
-    if (nextHop_c->dnatEnable) {
-      convertNat2cpp(&nextHop_c->dnat, nextHop_pb->mutable_dnat());
-    } else {
-      nextHop_pb->clear_dnat();
-    }
-
-    nextHop_pb->set_vlan(nextHop_c->vlan);
 }
 
 void convertNextHop2c(
@@ -115,20 +101,44 @@ void convertNextHop2c(
     {
       convertMacRewrite2c(&nextHop_pb->macrewrite(),  &nextHop_c->macRewrite);
     }
+}
 
-    nextHop_c->snatEnable = nextHop_pb->has_snat();    
-    if (nextHop_c->snatEnable)
+void convertPerLinkActionParams2cpp(
+  const struct perLinkActionParameters_t *params_c,
+  perLinkActionParameters *params_pb)
+{
+    if (params_c->snatEnable) {
+      convertNat2cpp(&params_c->snat, params_pb->mutable_snat());
+    } else {
+      params_pb->clear_snat();
+    }
+
+    if (params_c->dnatEnable) {
+      convertNat2cpp(&params_c->dnat, params_pb->mutable_dnat());
+    } else {
+      params_pb->clear_dnat();
+    }
+
+    params_pb->set_vlan(params_c->vlan);
+}
+
+void convertPerLinkActionParams2c(
+  const perLinkActionParameters *params_pb,
+  struct perLinkActionParameters_t *params_c)
+{
+    params_c->snatEnable = params_pb->has_snat();    
+    if (params_c->snatEnable)
     {
-      convertNat2c(&nextHop_pb->snat(),  &nextHop_c->snat);
+      convertNat2c(&params_pb->snat(),  &params_c->snat);
     }
     
-    nextHop_c->dnatEnable = nextHop_pb->has_dnat();    
-    if (nextHop_c->dnatEnable)
+    params_c->dnatEnable = params_pb->has_dnat();    
+    if (params_c->dnatEnable)
     {
-      convertNat2c(&nextHop_pb->dnat(),  &nextHop_c->dnat);
+      convertNat2c(&params_pb->dnat(),  &params_c->dnat);
     }
     
-    nextHop_c->vlan = nextHop_pb->vlan();
+    params_c->vlan = params_pb->vlan();
 }
 
 static void convertActionParams2cpp(
@@ -139,8 +149,8 @@ static void convertActionParams2cpp(
     
     // obsolete: actionNextHop, actionNextHopV6
 
-    actionParams_pb->set_nexthopid_inlif(actionParams_c->nextHopId_inLif);
-    actionParams_pb->set_nexthopid_outlif(actionParams_c->nextHopId_outLif);
+    convertPerLinkActionParams2cpp(&actionParams_c->actionParams_inLif, actionParams_pb->mutable_actionparams_inlif());
+    convertPerLinkActionParams2cpp(&actionParams_c->actionParams_outLif, actionParams_pb->mutable_actionparams_outlif());
 }
 
 static void convertActionParams2c(
@@ -151,8 +161,8 @@ static void convertActionParams2c(
 
     // obsolete: actionNextHop, actionNextHopV6
 
-    actionParams_c->nextHopId_inLif = actionParams_pb->nexthopid_inlif();
-    actionParams_c->nextHopId_outLif = actionParams_pb->nexthopid_outlif();
+    convertPerLinkActionParams2c(&actionParams_pb->actionparams_inlif(), &actionParams_c->actionParams_inLif);
+    convertPerLinkActionParams2c(&actionParams_pb->actionparams_outlif(), &actionParams_c->actionParams_outLif);
 }
 
 /** \ingroup utilities
