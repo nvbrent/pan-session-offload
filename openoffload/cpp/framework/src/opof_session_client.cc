@@ -312,9 +312,9 @@ int SessionTableClient::getVlanFlows(
   status = stub_->getVlanFlows(&context, request, &response);
 
   if (status.error_code() == Status::OK.error_code() &&
-    response.flowdefs_size() <= vlanFlowMaxCount)
+    response.flowdefs_size() <= (int)vlanFlowMaxCount)
   {
-    for (size_t i=0; i<response.flowdefs_size(); i++) {
+    for (int i=0; i<response.flowdefs_size(); i++) {
       vlan_ids[i] = response.flowdefs(i).vlanid();
       vf_indices[i] = response.flowdefs(i).internallif();
     }
