@@ -113,8 +113,8 @@ enum REQUEST_STATUS{
 enum ACTION_TYPE{
    _DROP = 0;
    _FORWARD = 1;
-   _MIRROR = 2;
-   _SNOOP = 3;
+   _MIRROR = 2; // deprecated
+   _SNOOP = 3; // deprecated
 }
 
 enum TUNNEL_TYPE{
@@ -209,11 +209,15 @@ message nextHopParameters{
   // - The presense of MAC rewrite fields implies a TTL decrement for TCP flows.
   // - For encapsulated traffic, the rewrite action applies to outermost packet header.
   MACRewrite macRewrite = 2;
+}
+
+message perLinkActionParameters{
+  uint32 nextHopId = 1;
 
   // NAT Support: overwrite src/dst L3/L4 fields
   // - For encapsulated traffic, applies to outermost packet header.
-  NAT snat = 5;
-  NAT dnat = 6;
+  NAT snat = 2;
+  NAT dnat = 3;
 
   // VLAN Mapping: re-write VLAN tags, if present
   // - If non-zero, overwrite VLAN tag as specified for each link interface
@@ -223,18 +227,15 @@ message nextHopParameters{
   uint32 vlan = 4;
 }
 
-// MIRROR and SNOOP require an actionNextHop
-// DROP and FORWARD do not have an actionNextHop
-// The IPV4 nextHop definition maps to the V4 struct returned by inet_pton which is a uint32_t.
-// The IPV6 nextHop definition maps to the V6 struct returned by inet_ptoN which is a uint8_t s6_addr[16]
 message actionParameters{
      ACTION_TYPE  actionType = 1;
+     
+     // The per-link ActionParams only apply when actionType==_FORWARD
+     perLinkActionParameters actionParams_inLif = 19;
+     perLinkActionParameters actionParams_outLif = 20;
 
      uint32 actionNextHop = 2; // deprecated
      bytes actionNextHopV6 = 3; // deprecated
-
-     uint32 nextHopId_inLif = 17;
-     uint32 nextHopId_outLif = 18;
 }
 
 // sessionId is returned by server side upon successful addSession

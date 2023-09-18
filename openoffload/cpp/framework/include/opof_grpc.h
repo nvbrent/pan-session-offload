@@ -75,5 +75,5 @@ using openoffload::v1beta1::vlanFlowList;
 using openoffload::v1beta1::vlanFlowListRequest;
 using openoffload::v1beta1::nextHopParameters;
 using openoffload::v1beta1::nextHopResponse;
-
+using openoffload::v1beta1::perLinkActionParameters;
 #endif // _OPOF_GRPC_H

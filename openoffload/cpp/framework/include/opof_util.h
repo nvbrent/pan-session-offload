@@ -49,4 +49,10 @@ void convertNextHopResponse2c(
 void convertNextHopResponse2cpp(
   const struct nextHopResponse_t *responsec,
   nextHopResponse *responsecpp);
+void convertPerLinkActionParams2cpp(
+  const struct perLinkActionParameters_t *params_c,
+  perLinkActionParameters *params_pb);
+void convertPerLinkActionParams2c(
+  const perLinkActionParameters *params_pb,
+  struct perLinkActionParameters_t *params_c);
 #endif

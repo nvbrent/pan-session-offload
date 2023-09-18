@@ -251,6 +251,10 @@ typedef struct nextHopParameters_t {
    */
   bool macRewriteEnable;
   struct macRewrite_t macRewrite;
+} nextHopParameters_t;
+
+typedef struct perLinkActionParameters_t {
+  uint32_t nextHopId;
   
   /**
    * NAT Support: overwrite src/dst L3/L4 fields
@@ -270,13 +274,13 @@ typedef struct nextHopParameters_t {
    * - For encapsulated traffic, applies to outermost packet header.
    */
   uint16_t vlan;
-} nextHopParameters_t;
+} perLinkActionParameters_t;
 
 typedef struct actionParameters_t {
   ACTION_VALUE_T actionType;
 
-  uint32_t nextHopId_inLif;
-  uint32_t nextHopId_outLif;
+  struct perLinkActionParameters_t actionParams_inLif;
+  struct perLinkActionParameters_t actionParams_outLif;
 } actionParameters_t;
 
 /** @struct streamArgs_t
