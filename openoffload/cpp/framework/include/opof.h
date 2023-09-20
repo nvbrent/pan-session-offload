@@ -251,6 +251,8 @@ typedef struct nextHopParameters_t {
    */
   bool macRewriteEnable;
   struct macRewrite_t macRewrite;
+
+  IP_VERSION_T ipver;
 } nextHopParameters_t;
 
 typedef struct perLinkActionParameters_t {

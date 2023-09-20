@@ -88,6 +88,8 @@ void convertNextHop2cpp(
     } else {
       nextHop_pb->clear_macrewrite();
     }
+
+    nextHop_pb->set_ipversion((IP_VERSION)nextHop_c->ipver);
 }
 
 void convertNextHop2c(
@@ -101,12 +103,16 @@ void convertNextHop2c(
     {
       convertMacRewrite2c(&nextHop_pb->macrewrite(),  &nextHop_c->macRewrite);
     }
+
+    nextHop_c->ipver = (IP_VERSION_T)nextHop_pb->ipversion();
 }
 
 void convertPerLinkActionParams2cpp(
   const struct perLinkActionParameters_t *params_c,
   perLinkActionParameters *params_pb)
 {
+    params_pb->set_nexthopid(params_c->nextHopId);
+
     if (params_c->snatEnable) {
       convertNat2cpp(&params_c->snat, params_pb->mutable_snat());
     } else {
@@ -126,6 +132,8 @@ void convertPerLinkActionParams2c(
   const perLinkActionParameters *params_pb,
   struct perLinkActionParameters_t *params_c)
 {
+    params_c->nextHopId = params_pb->nexthopid();
+
     params_c->snatEnable = params_pb->has_snat();    
     if (params_c->snatEnable)
     {

@@ -209,6 +209,9 @@ message nextHopParameters{
   // - The presense of MAC rewrite fields implies a TTL decrement for TCP flows.
   // - For encapsulated traffic, the rewrite action applies to outermost packet header.
   MACRewrite macRewrite = 2;
+ 
+  // ipVersion is required to offload TTL decrement
+  IP_VERSION ipVersion = 3;
 }
 
 message perLinkActionParameters{
