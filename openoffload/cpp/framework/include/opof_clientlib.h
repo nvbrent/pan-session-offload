@@ -52,6 +52,7 @@ int getServiceVersion(
     const char **name,
     const char **version,
     const char **copyright);
+int opof_reset(sessionTable_t *sessionHandle);
 int opof_add_session(int size, sessionTable_t *sessionHandle,  sessionRequest_t **parameters, addSessionResponse_t *resp);
 int opof_del_session(sessionTable_t *sessionHandle,  unsigned long  sessionId, sessionResponse_t *resp);
 int opof_get_session(sessionTable_t *sessionHandle,  unsigned long  sessionId , sessionResponse_t *resp);

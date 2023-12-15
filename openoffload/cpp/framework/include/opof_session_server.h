@@ -32,6 +32,7 @@ extern "C" {
 class SessionTableImpl final : public SessionTable::Service {
 public:  
     Status getServiceVersion(ServerContext* context, const versionRequest* request, versionResponse* response) override;
+    Status reset(ServerContext* context, const resetRequest *request, sessionResponse *response) override;
     Status addSession(ServerContext* context, ServerReader<sessionRequest>* reader, addSessionResponse* response) override;
     Status getSession(ServerContext* context, const sessionId* sid, sessionResponse* response) override;
     Status deleteSession(ServerContext* context, const sessionId* sid, sessionResponse* response) override;

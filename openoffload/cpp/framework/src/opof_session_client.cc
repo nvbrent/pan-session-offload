@@ -88,6 +88,14 @@ int SessionTableClient::getServiceVersion(
   return static_cast<int>(Status::OK.error_code());
 }
 
+int SessionTableClient::reset()
+{
+    ClientContext context;
+    resetRequest request;
+    sessionResponse response;
+    Status status = stub_->reset(&context, request, &response);
+    return static_cast<int>(status.error_code());
+}
 
 /**  \ingroup clientlibrary
 * \brief

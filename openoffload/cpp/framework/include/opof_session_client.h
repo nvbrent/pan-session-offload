@@ -54,6 +54,8 @@ public:
         const char **name,
         const char **version,
         const char **copyright);
+    
+    int reset();
 
      /** \brief adds a session to the server
       *

@@ -71,6 +71,7 @@ sessionTable_t * opof_create_sessionTable(const char * host, unsigned int port, 
   	return sessionHandle;
   	
 }
+
 /**  \ingroup clientcinterface
 * \brief Destroy client connection to server
 *
@@ -86,6 +87,11 @@ void opof_delete_sessionTable(sessionTable_t *sessionHandle){
 	client = static_cast<SessionTableClient *>(sessionHandle->obj);
 	delete client;
 	free(sessionHandle);
+}
+
+int opof_reset(sessionTable_t *sessionHandle){
+	SessionTableClient *client = static_cast<SessionTableClient *>(sessionHandle->obj);
+	return client->reset();
 }
 
 /** \brief Retrieves version information from the offload service.

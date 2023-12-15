@@ -129,6 +129,9 @@ enum TUNNEL_TYPE{
 service SessionTable {
 rpc getServiceVersion(versionRequest) returns (versionResponse) {}
 //
+// Resets all session/vlan/nexthop state in the service
+rpc reset(resetRequest) returns (sessionResponse) {}
+//
 // Adds a session
 // This was changed in v1alpha4 to be a streaming API, for performance
 // reasons.
@@ -175,6 +178,9 @@ rpc getVlanFlows(vlanFlowListRequest) returns (vlanFlowList) {}
 //
 // removes all vlan flows
 rpc clearVlanFlows(vlanFlowListRequest) returns (sessionResponse) {}
+}
+
+message resetRequest{
 }
 
 // should the Application assign the sessionID on AddSession and avoid conflicts

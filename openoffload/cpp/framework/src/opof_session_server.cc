@@ -54,6 +54,13 @@ Status SessionTableImpl::getServiceVersion(ServerContext* context, const version
   response->set_name(name);
   response->set_version(version);
   response->set_copyright(copyright);
+
+  return Status::OK;
+}
+
+Status SessionTableImpl::reset(ServerContext* context, const resetRequest *request, sessionResponse *response)
+{
+  opof_reset_server();
   return Status::OK;
 }
 
@@ -155,7 +162,6 @@ Status SessionTableImpl::deleteSession(ServerContext* context, const sessionId* 
 * \param response
 */
 Status SessionTableImpl::getAllSessions(ServerContext* context, const sessionRequestArgs* request, sessionResponses *responses) {
-  
   Status status;
   sessionResponse_t **allSessions= NULL;
   sessionResponse_t *closedResponse;
@@ -209,7 +215,6 @@ Status SessionTableImpl::getAllSessions(ServerContext* context, const sessionReq
 * \param response
 */
 Status SessionTableImpl::getClosedSessions(ServerContext* context, const sessionRequestArgs* request, ServerWriter<sessionResponse>* writer) {
-  
   sessionResponse response;
   sessionResponse_t closedResponse;
   statisticsRequestArgs_t request_c;
@@ -274,7 +279,7 @@ Status SessionTableImpl::getVlanFlows(ServerContext* context, const vlanFlowList
   return Status::OK;
 }
 
-Status SessionTableImpl::clearVlanFlows(ServerContext* context, const vlanFlowListRequest* ignored, sessionResponse* response) {
+Status SessionTableImpl::clearVlanFlows(ServerContext* context, const vlanFlowListRequest* request, sessionResponse* response) {
   opof_clear_vlan_flows_server();
   response->set_requeststatus(REQUEST_STATUS::_ACCEPTED);
   return Status::OK;
